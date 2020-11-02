@@ -1,0 +1,86 @@
+# Starter pipeline
+trigger: 
+- master
+ 
+pool: 
+  vmImage: 'ubuntu-latest'
+
+jobs:
+- job: setup_couchbase
+  variables:
+  - group: couchbase
+  
+  steps:
+  - task: AzureResourceManagerTemplateDeployment@3
+    inputs:
+      deploymentScope: 'Resource Group'
+      azureResourceManagerConnection: 'Azure subscription 1(a84771c4-d59c-4233-8c65-9e7c8e404eac)'
+      subscriptionId: 'a84771c4-d59c-4233-8c65-9e7c8e404eac'
+      action: 'Create Or Update Resource Group'
+      resourceGroupName: $(rgName)
+      location: 'Canada Central'
+      templateLocation: 'URL of the file'
+      csmFileLink: 'https://raw.githubusercontent.com/naeemhaq/sign-in-canada/master/gluu-az-template/simpleLinuxVM/template.json'
+      csmParametersFileLink: 'https://raw.githubusercontent.com/naeemhaq/sign-in-canada/master/gluu-az-template/simpleLinuxVM/parameters.json'
+      overrideParameters: '-adminUsername $(adminUsername) -adminPasswordOrKey "$(adminPasswordOrKey)" -dnsLabelPrefix $(vmName) -networkSecurityGroupName $(networkSecurityGroupName) -OSVersion $(OSVersion) -storageName $(storageName) -subnetName $(subnetName) -virtualNetworkName $(virtualNetworkName) -vmName $(vmName) -_artifactsLocation "$(_artifactsLocation)" -commandToExec "$(commandToExec)" -homeTrafficRule $(homeTrafficRule)'
+      deploymentMode: 'Incremental'
+      
+- job: update_setup_props
+  dependsOn: setup_couchbase
+  variables:
+  - group: couchbase
+
+  steps:
+  - script: |
+      echo "couchbase varialbe group test: " $(vmName)
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: 'Azure subscription 1(a84771c4-d59c-4233-8c65-9e7c8e404eac)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az vm show -g $(rgName) -n $(vmName) -d --query privateIps --out tsv > tmpfile1
+        az storage blob download --account-name gluuccrgdiag --container-name gluu-install --file setup.properties --name setup.properties
+    displayName: 'Couchbase IP and download setup.props blob'
+
+  - script: |
+      echo consume private ip variable 
+      pvtIPadd=$(cat tmpfile1)
+      echo $pvtIPadd
+      ls -al 
+      sed -i "/couchbase_hostname/ s/.*/couchbase_hostname=$pvtIPadd/g" setup.properties
+      cat setup.properties |grep couchbase
+      echo $(commandToExec) | cut -d ' ' -f 3 > tmpfile2 && cbpass=$(cat tmpfile2) && echo $cbpass
+      echo "running sed command"
+      sed -i "/cb_password/ s/.*/$cbpass/g" setup.properties
+      echo "spit out password"
+      cat setup.properties |grep cb_password 
+      echo "the task is done"   
+    displayName: 'Update the setup.properties'
+
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: 'Azure subscription 1(a84771c4-d59c-4233-8c65-9e7c8e404eac)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az storage blob upload --account-name gluuccrgdiag --container-name gluu-install --file setup.properties --name setup.properties'
+    displayName: 'Uploading to blob'
+
+- job: setup_gluu_server 
+  dependsOn: update_setup_props
+  variables: 
+  - group: naeem-gluu
+  steps:
+  - task: AzureResourceManagerTemplateDeployment@3
+    inputs:
+      deploymentScope: 'Resource Group'
+      azureResourceManagerConnection: 'Azure subscription 1(a84771c4-d59c-4233-8c65-9e7c8e404eac)'
+      subscriptionId: 'a84771c4-d59c-4233-8c65-9e7c8e404eac'
+      action: 'Create Or Update Resource Group'
+      resourceGroupName: $(rgName)
+      location: 'Canada Central'
+      templateLocation: 'URL of the file'
+      csmFileLink: 'https://raw.githubusercontent.com/naeemhaq/sign-in-canada/master/gluu-az-template/simpleLinuxVM/template.json'
+      csmParametersFileLink: 'https://raw.githubusercontent.com/naeemhaq/sign-in-canada/master/gluu-az-template/simpleLinuxVM/parameters.json'
+      overrideParameters: '-adminUsername $(adminUsername) -adminPasswordOrKey "$(adminPasswordOrKey)" -dnsLabelPrefix $(vmName) -networkSecurityGroupName $(networkSecurityGroupName) -OSVersion $(OSVersion) -storageName $(storageName) -subnetName $(subnetName) -virtualNetworkName $(virtualNetworkName) -vmName $(vmName) -_artifactsLocation "$(_artifactsLocation)" -commandToExec "$(commandToExec)" -homeTrafficRule $(homeTrafficRule)'
+      deploymentMode: 'Incremental'
