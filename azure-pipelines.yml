@@ -20,8 +20,8 @@ jobs:
       resourceGroupName: $(rgName)
       location: 'Canada Central'
       templateLocation: 'URL of the file'
-      csmFileLink: 'https://raw.githubusercontent.com/naeemhaq/sign-in-canada/master/gluu-az-template/simpleLinuxVM/template.json'
-      csmParametersFileLink: 'https://raw.githubusercontent.com/naeemhaq/sign-in-canada/master/gluu-az-template/simpleLinuxVM/parameters.json'
+      csmFileLink: 'https://raw.githubusercontent.com/sign-in-canada/azure-lab-pipeline/main/linuxARMTemplates/template.json'
+      csmParametersFileLink: 'https://raw.githubusercontent.com/sign-in-canada/azure-lab-pipeline/main/linuxARMTemplates/parameters.json'
       overrideParameters: '-adminUsername $(adminUsername) -adminPasswordOrKey "$(adminPasswordOrKey)" -dnsLabelPrefix $(vmName) -networkSecurityGroupName $(networkSecurityGroupName) -OSVersion $(OSVersion) -storageName $(storageName) -subnetName $(subnetName) -virtualNetworkName $(virtualNetworkName) -vmName $(vmName) -_artifactsLocation "$(_artifactsLocation)" -commandToExec "$(commandToExec)" -homeTrafficRule $(homeTrafficRule)'
       deploymentMode: 'Incremental'
       
@@ -80,7 +80,7 @@ jobs:
       resourceGroupName: $(rgName)
       location: 'Canada Central'
       templateLocation: 'URL of the file'
-      csmFileLink: 'https://raw.githubusercontent.com/naeemhaq/sign-in-canada/master/gluu-az-template/simpleLinuxVM/template.json'
-      csmParametersFileLink: 'https://raw.githubusercontent.com/naeemhaq/sign-in-canada/master/gluu-az-template/simpleLinuxVM/parameters.json'
+      csmFileLink: 'https://raw.githubusercontent.com/sign-in-canada/azure-lab-pipeline/main/linuxARMTemplates/template.json'
+      csmParametersFileLink: 'https://raw.githubusercontent.com/sign-in-canada/azure-lab-pipeline/main/linuxARMTemplates/parameters.json'
       overrideParameters: '-adminUsername $(adminUsername) -adminPasswordOrKey "$(adminPasswordOrKey)" -dnsLabelPrefix $(vmName) -networkSecurityGroupName $(networkSecurityGroupName) -OSVersion $(OSVersion) -storageName $(storageName) -subnetName $(subnetName) -virtualNetworkName $(virtualNetworkName) -vmName $(vmName) -_artifactsLocation "$(_artifactsLocation)" -commandToExec "$(commandToExec)" -homeTrafficRule $(homeTrafficRule)'
       deploymentMode: 'Incremental'
