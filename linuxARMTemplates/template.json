@@ -1,0 +1,471 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "_artifactsLocation": {
+        "type": "string",
+        "defaultValue": "https://raw.githubusercontent.com/naeemhaq/sign-in-canada/master/gluu-az-template/install_apache.sh",
+        "metadata": {
+            "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+        }
+      },
+      "commandToExec":{
+        "type": "string",
+        "defaultValue": "sh install.sh"
+      },
+      "vmName": {
+        "type": "string",
+        "defaultValue": "simpleLinuxVM",
+        "metadata": {
+          "description": "The name of you Virtual Machine."
+        }
+      },
+      "adminUsername": {
+        "type": "string",
+        "metadata": {
+          "description": "Username for the Virtual Machine."
+        }
+      },
+      "authenticationType": {
+        "type": "string",
+        "defaultValue": "sshPublicKey",
+        "allowedValues": [
+          "sshPublicKey",
+          "password"
+        ],
+        "metadata": {
+          "description": "Type of authentication to use on the Virtual Machine. SSH key is recommended."
+        }
+      },
+      "adminPasswordOrKey": {
+        "type": "securestring",
+        "metadata": {
+          "description": "SSH Key or password for the Virtual Machine. SSH key is recommended."
+        }
+      },
+      "dnsLabelPrefix": {
+        "type": "string",
+        "defaultValue": "[toLower(concat('simplelinuxvm-', uniqueString(resourceGroup().id)))]",
+        "metadata": {
+          "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
+        }
+      },
+      "OSVersion": {
+        "type": "string",
+        "defaultValue": "7.5",
+        "allowedValues": [
+          "7.5",
+          "8.0"
+        ],
+        "metadata": {
+          "description": "The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version."
+        }
+      },
+      "location": {
+        "type": "string",
+        "defaultValue": "[resourceGroup().location]",
+        "metadata": {
+          "description": "Location for all resources."
+        }
+      },
+      "VmSize": {
+        "type": "string",
+        "defaultValue": "Standard_B2s",
+        "metadata": {
+          "description": "The size of the VM"
+        }
+      },
+      "virtualNetworkName": {
+        "type": "string",
+        "defaultValue": "vNet",
+        "metadata": {
+          "description": "Name of the VNET"
+        }
+      },
+      "subnetName": {
+        "type": "string",
+        "defaultValue": "Subnet",
+        "metadata": {
+          "description": "Name of the subnet in the virtual network"
+        }
+      },
+      "networkSecurityGroupName": {
+        "type": "string",
+        "defaultValue": "SecGroupNet",
+        "metadata": {
+          "description": "Name of the Network Security Group"
+        }
+      },
+      "autoShutdownNotificationEmail": {
+        "type": "string",
+        "defaultValue": "info@nqtech.ca"
+      },
+      "autoShutdownNotificationLocale": {
+        "type": "string",
+        "defaultValue": "en"
+      },
+      "autoShutdownNotificationStatus": {
+        "type": "string",
+        "defaultValue": "Enabled"
+      },
+      "autoShutdownStatus": {
+        "type": "string",
+        "defaultValue": "Enabled"
+      },
+      "autoShutdownTime": {
+        "type": "string",
+        "defaultValue": "17:30"
+      },
+      "autoShutdownTimeZone": {
+        "type": "string",
+        "defaultValue": "Eastern Standard Time"
+      },
+      "storageName":{
+        "type": "string",
+        "defaultValue": "pipelineStorage"
+      },
+      "subnetAddressPrefix":{
+        "type":"string",
+        "defaultValue": "10.0.1.0/24"
+      },
+      "addressPrefix":{
+        "type": "string",
+        "defaultValue": "10.0.1.0/24"
+      },
+      "homeTrafficRule": {
+        "type": "string",
+        "defaultValue": "174.112.28.92/32"
+      },
+      "setuppyAccountName": {
+        "type": "string",
+        "defaultValue": "gluuccrgdiag"
+      },
+      "setuppyRGName": {
+        "type": "string",
+        "defaultValue": "gluu-cc-rg"
+      },
+      "containerName": {
+        "type": "string",
+        "defaultValue": "gluu-install"
+      }
+    },
+    "variables": {
+      "publicIpAddressName": "[concat(parameters('vmName'), 'PublicIP' )]",
+      "networkInterfaceName": "[concat(parameters('vmName'),'NetInt')]",
+      "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]",
+      "setuppropStorage": "[resourceId(parameters('setuppyRGName'), 'Microsoft.Storage/storageAccounts', parameters('setuppyAccountName'))]",
+      "osDiskType": "Standard_LRS",
+      "keyvaultName": "[concat(resourceGroup().name, '-keyvault')]",
+      "secretName": "[concat(variables('keyvaultName'), '/', 'StorageSaSToken')]",
+      "serviceSasFunctionValues": {
+        "canonicalizedResource": "[concat('/blob/', parameters('setuppyAccountName'), '/', parameters('containerName'))]",
+        "signedResource": "c",
+        "signedPermission": "rw",
+        "signedExpiry": "2020-10-29T00:00:00Z"
+      },
+      "accountSasProperties": {
+        "type": "object",
+        "defaultValue": {
+            "signedServices": "b",
+            "signedPermission": "rw",
+            "signedExpiry": "2020-10-26T00:00:01Z",
+            "signedResourceTypes": "o"
+        }
+      },
+      "linuxConfiguration": {
+        "disablePasswordAuthentication": true,
+        "ssh": {
+          "publicKeys": [
+            {
+              "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+              "keyData": "[parameters('adminPasswordOrKey')]"
+            }
+          ]
+        }
+      }
+    },
+    "resources": [
+      {
+        "type": "Microsoft.KeyVault/vaults",
+        "name": "[variables('keyvaultName')]",
+        "apiVersion": "2016-10-01",
+        "location": "[parameters('location')]",
+        "properties": {
+          "sku": {
+            "family": "A",
+            "name": "standard"
+          },
+          "tenantId": "[subscription().tenantid]",
+          "accessPolicies": [
+          {
+              "tenantId": "[subscription().tenantid]",
+              "objectId": "[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')),'2020-06-01', 'full').identity.principalId]",
+              "permissions": {
+                "keys": [
+                  "get",
+                  "list",
+                  "create",
+                  "update"
+                ],
+                "secrets": [
+                  "get",
+                  "set",
+                  "list"
+                ],
+                "certificates": [
+                  "get",
+                  "list",
+                  "create",
+                  "update"
+                ]
+              }
+            }
+          ],
+          "enabledForDeployment": false,
+          "enabledForDiskEncryption": false,
+          "enabledForTemplateDeployment": false
+        },
+        "dependsOn": [
+          "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+        ]
+      },
+      {
+        "apiVersion": "2016-10-01",
+        "type": "Microsoft.KeyVault/vaults/secrets",
+        "dependsOn": [
+            "[concat('Microsoft.KeyVault/vaults/', variables('keyvaultName'))]"
+        ],
+        "name": "[variables('secretName')]",
+        "properties": {
+            "value": "[listServiceSas(variables('setuppropStorage'), '2018-07-01', variables('serviceSasFunctionValues')).serviceSasToken]"
+        }
+      },
+      {
+        "type": "Microsoft.Storage/storageAccounts",
+        "name": "[parameters('storageName')]",
+        "apiVersion": "2015-06-15",
+        "location": "[parameters('location')]",
+        "properties": {
+          "accountType": "Standard_LRS"
+        }
+      },
+      {
+        "type": "Microsoft.Network/networkInterfaces",
+        "apiVersion": "2020-05-01",
+        "name": "[variables('networkInterfaceName')]",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/networkSecurityGroups/', parameters('networkSecurityGroupName'))]",
+          "[resourceId('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
+          "[resourceId('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName'))]"
+        ],
+        "properties": {
+          "ipConfigurations": [
+            {
+              "name": "ipconfig1",
+              "properties": {
+                "subnet": {
+                  "id": "[variables('subnetRef')]"
+                },
+                "privateIPAllocationMethod": "Dynamic",
+                "publicIpAddress": {
+                  "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
+                }
+              }
+            }
+          ],
+          "networkSecurityGroup": {
+            "id": "[resourceId('Microsoft.Network/networkSecurityGroups',parameters('networkSecurityGroupName'))]"
+          }
+        }
+      },
+      {
+        "type": "Microsoft.Network/networkSecurityGroups",
+        "apiVersion": "2020-05-01",
+        "name": "[parameters('networkSecurityGroupName')]",
+        "location": "[parameters('location')]",
+        "properties": {
+          "securityRules": [
+            {
+              "name": "Internet",
+              "properties": {
+                "priority": 1000,
+                "protocol": "TCP",
+                "access": "Allow",
+                "direction": "Inbound",
+                "sourceAddressPrefix": "*",
+                "sourcePortRange": "*",
+                "destinationAddressPrefix": "*",
+                "destinationPortRanges": ["443","80"]
+              }
+            },
+            {
+              "name": "home-traffic",
+              "properties": {
+                "priority": 1100,
+                "protocol": "TCP",
+                "access": "Allow",
+                "direction": "Inbound",
+                "sourceApplicationSecurityGroups": [],
+                "destinationApplicationSecurityGroups": [],
+                "sourceAddressPrefix": "[parameters('homeTrafficRule')]",
+                "sourcePortRange": "*",
+                "destinationAddressPrefix": "*",
+                "destinationPortRange": "*"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "Microsoft.Network/virtualNetworks",
+        "apiVersion": "2020-05-01",
+        "name": "[parameters('virtualNetworkName')]",
+        "location": "[parameters('location')]",
+        "properties": {
+          "addressSpace": {
+            "addressPrefixes": [
+              "[parameters('addressPrefix')]"
+            ]
+          },
+          "subnets": [
+            {
+              "name": "[parameters('subnetName')]",
+              "properties": {
+                "addressPrefix": "[parameters('subnetAddressPrefix')]",
+                "privateEndpointNetworkPolicies": "Enabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "Microsoft.Network/publicIpAddresses",
+        "apiVersion": "2020-05-01",
+        "name": "[variables('publicIpAddressName')]",
+        "location": "[parameters('location')]",
+        "sku": {
+          "name": "Basic",
+          "tier": "Regional"
+        },
+        "properties": {
+          "publicIpAllocationMethod": "Dynamic",
+          "publicIPAddressVersion": "IPv4",
+          "dnsSettings": {
+            "domainNameLabel": "[parameters('dnsLabelPrefix')]"
+          },
+          "idleTimeoutInMinutes": 4
+        }
+      },
+      {
+        "type": "Microsoft.Compute/virtualMachines",
+        "apiVersion": "2019-07-01",
+        "name": "[parameters('vmName')]",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'))]"
+        ],
+        "properties": {
+          "hardwareProfile": {
+            "vmSize": "[parameters('VmSize')]"
+          },
+          "storageProfile": {
+            "osDisk": {
+              "createOption": "fromImage",
+              "managedDisk": {
+                "storageAccountType": "[variables('osDiskType')]"
+              }
+            },
+            "imageReference": {
+              "publisher": "OpenLogic",
+              "offer": "CentOS",
+              "sku": "[parameters('OSVersion')]",
+              "version": "latest"
+            }
+          },
+          "networkProfile": {
+            "networkInterfaces": [
+              {
+                "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName'))]"
+              }
+            ]
+          },
+          "osProfile": {
+            "computerName": "[parameters('vmName')]",
+            "adminUsername": "[parameters('adminUsername')]",
+            "adminPassword": "[parameters('adminPasswordOrKey')]",
+            "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), json('null'), variables('linuxConfiguration'))]"
+          },
+          "diagnosticsProfile": {
+            "bootDiagnostics": {
+                "enabled": true,
+                "storageUri": "[concat('https://', parameters('storageName'), '.blob.core.windows.net/')]"
+            }
+          }
+        },
+        "identity": {
+          "type": "systemAssigned"
+        }
+      },
+      {
+        "name": "[concat('shutdown-computevm-', parameters('vmName'))]",
+        "type": "Microsoft.DevTestLab/schedules",
+        "apiVersion": "2018-09-15",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+        ],
+        "properties": {
+          "status": "[parameters('autoShutdownStatus')]",
+          "taskType": "ComputeVmShutdownTask",
+          "dailyRecurrence": {
+            "time": "[parameters('autoShutdownTime')]"
+          },
+          "timeZoneId": "[parameters('autoShutdownTimeZone')]",
+          "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]",
+          "notificationSettings": {
+            "status": "[parameters('autoShutdownNotificationStatus')]",
+            "notificationLocale": "[parameters('autoShutdownNotificationLocale')]",
+            "timeInMinutes": 30,
+            "emailRecipient": "[parameters('autoShutdownNotificationEmail')]"
+          }
+        }
+      },
+      {
+        "type": "Microsoft.Compute/virtualMachines/extensions",
+        "name": "[concat(parameters('vmName'),'/newuserscript')]",
+        "apiVersion": "2015-05-01-preview",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[concat('Microsoft.KeyVault/vaults/', variables('keyvaultName'))]"
+        ],
+        "properties": {
+          "publisher": "Microsoft.Azure.Extensions",
+          "type": "CustomScript",
+          "typeHandlerVersion": "2.0",
+          "autoUpgradeMinorVersion": true,
+          "settings": {
+            "fileUris": [
+              "[parameters('_artifactsLocation')]"
+            ],
+            "commandToExecute": "[parameters('commandToExec')]"
+          }
+        }
+      }
+    ],
+    "outputs": {
+      "adminUsername": {
+        "type": "string",
+        "value": "[parameters('adminUsername')]"
+      },
+      "hostname": {
+        "type": "string",
+        "value": "[reference(variables('publicIPAddressName')).dnsSettings.fqdn]"
+      },
+      "sshCommand": {
+        "type": "string",
+        "value": "[concat('ssh ', parameters('adminUsername'), '@', reference(variables('publicIPAddressName')).dnsSettings.fqdn)]"
+      }
+    }
+  }
