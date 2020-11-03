@@ -147,9 +147,14 @@
       "containerName": {
         "type": "string",
         "defaultValue": "gluu-install"
+      },
+      "baseTime":{
+          "type":"string",
+          "defaultValue": "[utcNow('u')]"
       }
     },
     "variables": {
+      "add1Hour": "[dateTimeAdd(parameters('baseTime'), 'PT2H')]",
       "publicIpAddressName": "[concat(parameters('vmName'), 'PublicIP' )]",
       "networkInterfaceName": "[concat(parameters('vmName'),'NetInt')]",
       "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]",
@@ -161,7 +166,7 @@
         "canonicalizedResource": "[concat('/blob/', parameters('setuppyAccountName'), '/', parameters('containerName'))]",
         "signedResource": "c",
         "signedPermission": "rw",
-        "signedExpiry": "2020-10-29T00:00:00Z"
+        "signedExpiry": "[variables('add1Hour')]"
       },
       "accountSasProperties": {
         "type": "object",
