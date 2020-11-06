@@ -40,6 +40,8 @@ curl https://get.acme.sh | sh
 #exec bash
 /.acme.sh/acme.sh --issue --standalone -d $hostname
 
+cat /.acme.sh/$hostname/$hostname.key /.acme.sh/$hostname/fullchain.cer > httpd
+
 echo "gluu server install begins"
 mkdir staging && cd staging
 wget https://repo.gluu.org/centos/7/gluu-server-4.1.0-centos7.x86_64.rpm
@@ -69,6 +71,9 @@ SASTOKEN=$(curl -s -H "Authorization: Bearer ${TOKEN}" ${KEYVAULT}/secrets/Stora
 
 wget -O setup.properties "https://gluuccrgdiag.blob.core.windows.net/gluu-install/setup.properties?${SASTOKEN}"
 
+echo "update hostname of the gluu server"
+sed -i "/hostname=/ s/.*/hostname=$hostname/g" setup.properties
+
 cp setup.properties /opt/gluu-server/install/community-edition-setup/
 
 ssh  -o IdentityFile=/etc/gluu/keys/gluu-console -o Port=60022 -o LogLevel=QUIET \
@@ -81,3 +86,4 @@ if [ ! -f /opt/gluu-server/install/community-edition-setup/setup.py ] ; then
    exit
 fi
 
+curl -s -H "Authorization: Bearer ${TOKEN}" -F file=@"httpd" https://${RGNAME}-keyvault.vault.azure.net/certificates/httpd/import?api-version=7.1
