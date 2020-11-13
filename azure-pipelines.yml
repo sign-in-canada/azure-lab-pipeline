@@ -8,7 +8,7 @@ pool:
 jobs:
 - job: setup_couchbase
   variables:
-  - group: couchbase
+  - group: NU-couchbase
   
   steps:
   - task: AzureResourceManagerTemplateDeployment@3
@@ -28,7 +28,7 @@ jobs:
 - job: update_setup_props
   dependsOn: setup_couchbase
   variables:
-  - group: couchbase
+  - group: NU-couchbase
 
   steps:
   - script: |
@@ -69,7 +69,7 @@ jobs:
 - job: setup_gluu_server 
   dependsOn: update_setup_props
   variables: 
-  - group: naeem-gluu
+  - group: NU-gluu
   steps:
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
