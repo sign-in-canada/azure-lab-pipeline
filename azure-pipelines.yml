@@ -14,10 +14,10 @@ jobs:
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
       deploymentScope: 'Resource Group'
-      azureResourceManagerConnection: 'Azure subscription 1(a84771c4-d59c-4233-8c65-9e7c8e404eac)'
+      azureResourceManagerConnection: 'sic-nulhaq-rg'
       subscriptionId: 'a84771c4-d59c-4233-8c65-9e7c8e404eac'
       action: 'Create Or Update Resource Group'
-      resourceGroupName: $(rgName)
+      resourceGroupName: '$(rgName)'
       location: 'Canada Central'
       templateLocation: 'URL of the file'
       csmFileLink: 'https://raw.githubusercontent.com/sign-in-canada/azure-lab-pipeline/main/linuxARMTemplates/template.json'
@@ -35,7 +35,7 @@ jobs:
       echo "couchbase varialbe group test: " $(vmName)
   - task: AzureCLI@2
     inputs:
-      azureSubscription: 'Azure subscription 1(a84771c4-d59c-4233-8c65-9e7c8e404eac)'
+      azureSubscription: 'sic-nulhaq-rg'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
@@ -60,7 +60,7 @@ jobs:
 
   - task: AzureCLI@2
     inputs:
-      azureSubscription: 'Azure subscription 1(a84771c4-d59c-4233-8c65-9e7c8e404eac)'
+      azureSubscription: 'sic-nulhaq-rg'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'az storage blob upload --account-name gluuccrgdiag --container-name gluu-install --file setup.properties --name setup.properties'
@@ -74,10 +74,10 @@ jobs:
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
       deploymentScope: 'Resource Group'
-      azureResourceManagerConnection: 'Azure subscription 1(a84771c4-d59c-4233-8c65-9e7c8e404eac)'
+      azureResourceManagerConnection: 'sic-nulhaq-rg'
       subscriptionId: 'a84771c4-d59c-4233-8c65-9e7c8e404eac'
       action: 'Create Or Update Resource Group'
-      resourceGroupName: $(rgName)
+      resourceGroupName: '$(rgName)'
       location: 'Canada Central'
       templateLocation: 'URL of the file'
       csmFileLink: 'https://raw.githubusercontent.com/sign-in-canada/azure-lab-pipeline/main/linuxARMTemplates/template.json'
