@@ -1,6 +1,6 @@
 # Starter pipeline
 trigger: 
-- master
+- env/sic-nulhaq
  
 pool: 
   vmImage: 'ubuntu-latest'
