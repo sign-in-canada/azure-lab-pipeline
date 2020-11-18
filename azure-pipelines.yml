@@ -15,7 +15,7 @@ jobs:
     inputs:
       deploymentScope: 'Resource Group'
       azureResourceManagerConnection: 'sic-nulhaq-rg'
-      subscriptionId: 'a84771c4-d59c-4233-8c65-9e7c8e404eac'
+      subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
       action: 'Create Or Update Resource Group'
       resourceGroupName: '$(rgName)'
       location: 'Canada Central'
@@ -75,7 +75,7 @@ jobs:
     inputs:
       deploymentScope: 'Resource Group'
       azureResourceManagerConnection: 'sic-nulhaq-rg'
-      subscriptionId: 'a84771c4-d59c-4233-8c65-9e7c8e404eac'
+      subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
       action: 'Create Or Update Resource Group'
       resourceGroupName: '$(rgName)'
       location: 'Canada Central'
