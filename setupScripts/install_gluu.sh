@@ -72,7 +72,7 @@ SASTOKEN=$(curl -s -H "Authorization: Bearer ${TOKEN}" ${KEYVAULT}/secrets/Stora
 wget -O setup.properties "https://gluuccrgdiag.blob.core.windows.net/gluu-install/setup.properties?${SASTOKEN}"
 
 echo "update hostname of the gluu server"
-sed -i "/hostname=/ s/.*/hostname=$hostname/g" setup.properties
+sed -i "/^hostname=/ s/.*/hostname=$hostname/g" setup.properties
 
 cp setup.properties /opt/gluu-server/install/community-edition-setup/
 
