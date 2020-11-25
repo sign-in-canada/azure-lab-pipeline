@@ -74,7 +74,16 @@ wget -O setup.properties "https://gluuccrgdiag.blob.core.windows.net/gluu-instal
 echo "update hostname of the gluu server"
 sed -i "/^hostname=/ s/.*/hostname=$hostname/g" setup.properties
 
+echo "copying setup.props file to gluu container"
 cp setup.properties /opt/gluu-server/install/community-edition-setup/
+
+echo "copying certs to gluu container"
+KV_DIR=/run/keyvault/certs
+mkdir $KV_DIR
+cp /.acme.sh/$hostname/$hostname.key /opt/gluu-server/$KV_DIR
+cp /.acme.sh/$hostname/$hostname.cer /opt/gluu-server/$KV_DIR
+cp /.acme.sh/$hostname/fullchain.cer /opt/gluu-server/$KV_DIR
+cat $hostname > /opt/gluu-server/$KV_DIR/hostname
 
 ssh  -o IdentityFile=/etc/gluu/keys/gluu-console -o Port=60022 -o LogLevel=QUIET \
                 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
