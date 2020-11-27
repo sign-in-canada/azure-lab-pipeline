@@ -89,8 +89,20 @@ fi
 
 #curl -s -H "Authorization: Bearer ${TOKEN}" -F file=@"httpd" https://${RGNAME}-keyvault.vault.azure.net/certificates/httpd/import?api-version=7.1
 
+sed -i "/^loadData=True/ s/.*/loadData=False/g" setup.properties
+
 echo "downloading SIC tarball"
-wget https://gluuccrgdiag.blob.core.windows.net/gluu/SIC-Admintools-0.0.132.tgz
+wget https://gluuccrgdiag.blob.core.windows.net/gluu/SIC-Admintools-0.0.20.tgz
 wget https://gluuccrgdiag.blob.core.windows.net/gluu/SIC-AP-0.0.198.tgz
-tar -xvf SIC-AP-0.0.198.tgz
-tar -xvf SIC-Admintools-0.0.132.tgz
+
+tar -xvf SIC-Admintools-0.0.20.tgz
+
+cp administration/software/install.sh .
+chmod +x install.sh
+cat > install.params <<EOF
+STAGING_URL=https://sicqa.blob.core.windows.net/staging
+KEYVAULT_URL=${KEYVAULT}
+METADATA_URL=https://sicqa.blob.core.windows.net/saml/SIC-Nonprod-signed.xml
+EOF
+
+./install.sh SIC-AP-0.0.198
