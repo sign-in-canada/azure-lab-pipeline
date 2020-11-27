@@ -97,7 +97,7 @@ wget https://gluuccrgdiag.blob.core.windows.net/gluu/SIC-AP-0.0.198.tgz
 
 tar -xvf SIC-Admintools-0.0.20.tgz
 
-cp administration/software/install.sh .
+cp software/install.sh .
 chmod +x install.sh
 cat > install.params <<EOF
 STAGING_URL=https://sicqa.blob.core.windows.net/staging
