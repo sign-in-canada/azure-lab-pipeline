@@ -92,17 +92,17 @@ fi
 sed -i "/^loadData=True/ s/.*/loadData=False/g" setup.properties
 
 echo "downloading SIC tarball"
-wget https://gluuccrgdiag.blob.core.windows.net/gluu/SIC-Admintools-0.0.24.tgz
-wget https://gluuccrgdiag.blob.core.windows.net/gluu/SIC-AP-0.0.201.tgz
+wget https://gluuccrgdiag.blob.core.windows.net/gluu/SIC-Admintools-0.0.25.tgz
+wget https://gluuccrgdiag.blob.core.windows.net/gluu/SIC-AP-0.0.202.tgz
 
-tar -xvf SIC-Admintools-0.0.24.tgz
+tar -xvf SIC-Admintools-0.0.25.tgz
 
 cp software/install.sh .
 chmod +x install.sh
 cat > install.params <<EOF
-STAGING_URL=https://sicqa.blob.core.windows.net/staging
+STAGING_URL=https://gluuccrgdiag.blob.core.windows.net/gluu
 KEYVAULT_URL=${KEYVAULT}
 METADATA_URL=https://sicqa.blob.core.windows.net/saml/SIC-Nonprod-signed.xml
 EOF
 
-./install.sh SIC-AP-0.0.201
+sh install.sh SIC-AP-0.0.202
