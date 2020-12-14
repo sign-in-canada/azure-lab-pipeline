@@ -40,7 +40,7 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: |
         az vm show -g $(rgName) -n $(vmName) -d --query privateIps --out tsv > tmpfile1
-        az storage blob download --account-name siccommonstorage --container-name sic-pipeline-artifacts-private --file setup.properties --name setup.properties
+        az storage blob download --account-name sicartifactsst --container-name pipeline-pvt --file setup.properties --name setup.properties
     displayName: 'Couchbase IP and download setup.props blob'
 
   - script: |
@@ -63,7 +63,7 @@ jobs:
       azureSubscription: 'sic-nulhaq-rg'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
-      inlineScript: 'az storage blob upload --account-name siccommonstorage --container-name sic-pipeline-artifacts-private --file setup.properties --name setup.properties'
+      inlineScript: 'az storage blob upload --account-name sicartifactsst --container-name pipeline-pvt --file setup.properties --name setup.properties'
     displayName: 'Uploading to blob'
 
 - job: setup_gluu_server 

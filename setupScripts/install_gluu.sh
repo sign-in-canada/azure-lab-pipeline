@@ -63,7 +63,7 @@ KEYVAULT="https://${RGNAME}-keyvault.vault.azure.net"
 
 SASTOKEN=$(curl -s -H "Authorization: Bearer ${TOKEN}" ${KEYVAULT}/secrets/StorageSaSToken?api-version=${API_VER} | jq -r '.value')
 
-wget -O setup.properties "https://gluuccrgdiag.blob.core.windows.net/gluu-install/setup.properties?${SASTOKEN}"
+wget -O setup.properties "https://sicartifactsst.blob.core.windows.net/pipeline-pvt/setup.properties?${SASTOKEN}"
 
 echo "update hostname of the gluu server"
 sed -i "/^hostname=/ s/.*/hostname=$hostname/g" setup.properties
@@ -92,15 +92,15 @@ fi
 sed -i "/^loadData=True/ s/.*/loadData=False/g" setup.properties
 
 echo "downloading SIC tarball"
-wget https://gluuccrgdiag.blob.core.windows.net/gluu/SIC-Admintools-0.0.26.tgz
-wget https://gluuccrgdiag.blob.core.windows.net/gluu/SIC-AP-0.0.205.tgz
+wget https://sicartifactsst.blob.core.windows.net/pipeline-pub/SIC-Admintools-0.0.26.tgz
+wget https://sicartifactsst.blob.core.windows.net/pipeline-pub/SIC-AP-0.0.205.tgz
 
 tar -xvf SIC-Admintools-0.0.26.tgz
 
 cp software/install.sh .
 chmod +x install.sh
 cat > install.params <<EOF
-STAGING_URL=https://gluuccrgdiag.blob.core.windows.net/gluu
+STAGING_URL=https://sicartifactsst.blob.core.windows.net/gluu
 KEYVAULT_URL=${KEYVAULT}
 METADATA_URL=https://sicqa.blob.core.windows.net/saml/SIC-Nonprod-signed.xml
 EOF
