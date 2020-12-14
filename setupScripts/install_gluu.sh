@@ -54,12 +54,6 @@ echo "enabling gluu server and logging into container"
 /sbin/gluu-serverd enable
 /sbin/gluu-serverd start
 
-echo "downloading SIC tarball"
-wget https://gluuccrgdiag.blob.core.windows.net/gluu/SIC-Admintools-0.0.132.tgz
-wget https://gluuccrgdiag.blob.core.windows.net/gluu/SIC-AP-0.0.132.tgz
-tar -xvf SIC-AP-0.0.132.tgz
-tar -xvf SIC-Admintools-0.0.132.tgz
-
 API_VER='7.0'
 # Obtain an access token
 TOKEN=$(curl -s 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net' -H Metadata:true | jq -r '.access_token')
@@ -69,12 +63,19 @@ KEYVAULT="https://${RGNAME}-keyvault.vault.azure.net"
 
 SASTOKEN=$(curl -s -H "Authorization: Bearer ${TOKEN}" ${KEYVAULT}/secrets/StorageSaSToken?api-version=${API_VER} | jq -r '.value')
 
-wget -O setup.properties "https://gluuccrgdiag.blob.core.windows.net/gluu-install/setup.properties?${SASTOKEN}"
+wget -O setup.properties "https://sicartifactsst.blob.core.windows.net/pipeline-pvt/setup.properties?${SASTOKEN}"
 
 echo "update hostname of the gluu server"
-sed -i "/hostname=/ s/.*/hostname=$hostname/g" setup.properties
+sed -i "/^hostname=/ s/.*/hostname=$hostname/g" setup.properties
 
+echo "copying setup.props file to gluu container"
 cp setup.properties /opt/gluu-server/install/community-edition-setup/
+
+echo "copying certs to gluu container"
+KV_DIR=/opt/gluu-server/install/keyvault/certs
+mkdir -p $KV_DIR
+cp /.acme.sh/$hostname/* $KV_DIR
+cat $hostname > $KV_DIR/hostname_
 
 ssh  -o IdentityFile=/etc/gluu/keys/gluu-console -o Port=60022 -o LogLevel=QUIET \
                 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
@@ -86,4 +87,22 @@ if [ ! -f /opt/gluu-server/install/community-edition-setup/setup.py ] ; then
    exit
 fi
 
-curl -s -H "Authorization: Bearer ${TOKEN}" -F file=@"httpd" https://${RGNAME}-keyvault.vault.azure.net/certificates/httpd/import?api-version=7.1
+#curl -s -H "Authorization: Bearer ${TOKEN}" -F file=@"httpd" https://${RGNAME}-keyvault.vault.azure.net/certificates/httpd/import?api-version=7.1
+
+sed -i "/^loadData=True/ s/.*/loadData=False/g" setup.properties
+
+echo "downloading SIC tarball"
+wget https://sicartifactsst.blob.core.windows.net/pipeline-pub/SIC-Admintools-0.0.26.tgz
+wget https://sicartifactsst.blob.core.windows.net/pipeline-pub/SIC-AP-0.0.205.tgz
+
+tar -xvf SIC-Admintools-0.0.26.tgz
+
+cp software/install.sh .
+chmod +x install.sh
+cat > install.params <<EOF
+STAGING_URL=https://sicartifactsst.blob.core.windows.net/gluu
+KEYVAULT_URL=${KEYVAULT}
+METADATA_URL=https://sicqa.blob.core.windows.net/saml/SIC-Nonprod-signed.xml
+EOF
+
+sh install.sh SIC-AP-0.0.205
