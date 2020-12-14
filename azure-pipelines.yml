@@ -1,6 +1,6 @@
 # Starter pipeline
 trigger: 
-- master
+- env/sic-nulhaq
  
 pool: 
   vmImage: 'ubuntu-latest'
@@ -15,7 +15,7 @@ jobs:
     inputs:
       deploymentScope: 'Resource Group'
       azureResourceManagerConnection: 'sic-nulhaq-rg'
-      subscriptionId: 'a84771c4-d59c-4233-8c65-9e7c8e404eac'
+      subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
       action: 'Create Or Update Resource Group'
       resourceGroupName: '$(rgName)'
       location: 'Canada Central'
@@ -40,7 +40,7 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: |
         az vm show -g $(rgName) -n $(vmName) -d --query privateIps --out tsv > tmpfile1
-        az storage blob download --account-name gluuccrgdiag --container-name gluu-install --file setup.properties --name setup.properties
+        az storage blob download --account-name sicartifactsst --container-name pipeline-pvt --file setup.properties --name setup.properties
     displayName: 'Couchbase IP and download setup.props blob'
 
   - script: |
@@ -63,7 +63,7 @@ jobs:
       azureSubscription: 'sic-nulhaq-rg'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
-      inlineScript: 'az storage blob upload --account-name gluuccrgdiag --container-name gluu-install --file setup.properties --name setup.properties'
+      inlineScript: 'az storage blob upload --account-name sicartifactsst --container-name pipeline-pvt --file setup.properties --name setup.properties'
     displayName: 'Uploading to blob'
 
 - job: setup_gluu_server 
@@ -75,7 +75,7 @@ jobs:
     inputs:
       deploymentScope: 'Resource Group'
       azureResourceManagerConnection: 'sic-nulhaq-rg'
-      subscriptionId: 'a84771c4-d59c-4233-8c65-9e7c8e404eac'
+      subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
       action: 'Create Or Update Resource Group'
       resourceGroupName: '$(rgName)'
       location: 'Canada Central'
