@@ -75,7 +75,7 @@ echo "copying certs to gluu container"
 KV_DIR=/opt/gluu-server/install/keyvault/certs
 mkdir -p $KV_DIR
 cp /.acme.sh/$hostname/* $KV_DIR
-cat $hostname > $KV_DIR/hostname_
+echo $hostname > $KV_DIR/hostname_
 
 ssh  -o IdentityFile=/etc/gluu/keys/gluu-console -o Port=60022 -o LogLevel=QUIET \
                 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
