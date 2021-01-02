@@ -105,4 +105,8 @@ KEYVAULT_URL=${KEYVAULT}
 METADATA_URL=https://sicqa.blob.core.windows.net/saml/SIC-Nonprod-signed.xml
 EOF
 
+echo "copying the output folder of the initial install for jks and configs"
+cp -r /opt/gluu-server/install/community-edition-setup/output/ .
+
+echo "starting AdminTools setup of SIC tarbal"
 sh install.sh SIC-AP-0.0.205
