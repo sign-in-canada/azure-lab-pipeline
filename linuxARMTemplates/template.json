@@ -158,7 +158,7 @@
       },
       "tenantId": {
       "type": "string",
-      "defaultValue": "[subscription().tenantId]",
+      "defaultValue": "[subscription().tenantId]"
       }
     },
     "variables": {
