@@ -1,5 +1,6 @@
 #!/bin/bash
-
+SIC-Tarbal-version=SIC-AP-0.0.222
+$SIC-ADMINTOOLS=SIC-Admintools-0.0.26.tgz
 # isntall gluu server 
 echo "setting up repos for gluu"
 wget https://repo.gluu.org/rhel/Gluu-rhel7.repo -O /etc/yum.repos.d/Gluu.repo
@@ -59,7 +60,7 @@ API_VER='7.0'
 TOKEN=$(curl -s 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net' -H Metadata:true | jq -r '.access_token')
 
 RGNAME=$(curl -s 'http://169.254.169.254/metadata/instance/compute/resourceGroupName?api-version=2020-06-01&format=text' -H Metadata:true)
-KEYVAULT="https://${RGNAME}-keyvault.vault.azure.net"
+KEYVAULT="https://kv-sic-dev-00.vault.azure.net"
 
 SASTOKEN=$(curl -s -H "Authorization: Bearer ${TOKEN}" ${KEYVAULT}/secrets/StorageSaSToken?api-version=${API_VER} | jq -r '.value')
 
@@ -92,15 +93,17 @@ fi
 sed -i "/^loadData=True/ s/.*/loadData=False/g" setup.properties
 
 echo "downloading SIC tarball"
-wget https://siccommonstorage.blob.core.windows.net/sic-pipeline-artifacts-public/SIC-Admintools-0.0.26.tgz
-wget https://siccommonstorage.blob.core.windows.net/sic-pipeline-artifacts-public/SIC-AP-0.0.205.tgz
+#wget https://siccommonstorage.blob.core.windows.net/sic-pipeline-artifacts-public/SIC-Admintools-0.0.26.tgz
+#wget https://siccommonstorage.blob.core.windows.net/sic-pipeline-artifacts-public/SIC-AP-0.0.205.tgz
+wget https://sicqa.blob.core.windows.net/staging/${SIC-AP-TARBAL-VER}.tgz
+wget https://sicqa.blob.core.windows.net/staging/${SIC-ADMINTOOLS}
 
-tar -xvf SIC-Admintools-0.0.26.tgz
+tar -xvf $SIC-ADMINTOOLS
 
 cp software/install.sh .
 chmod +x install.sh
 cat > install.params <<EOF
-STAGING_URL=https://siccommonstorage.blob.core.windows.net/sic-pipeline-artifacts-public
+STAGING_URL=https://sicqa.blob.core.windows.net/staging
 KEYVAULT_URL=${KEYVAULT}
 METADATA_URL=https://sicqa.blob.core.windows.net/saml/SIC-Nonprod-signed.xml
 EOF
@@ -109,4 +112,4 @@ echo "copying the output folder of the initial install for jks and configs"
 cp -r /opt/gluu-server/install/community-edition-setup/output/ .
 
 echo "starting AdminTools setup of SIC tarbal"
-sh install.sh SIC-AP-0.0.205
+sh install.sh $SIC-AP-TARBAL-VER
