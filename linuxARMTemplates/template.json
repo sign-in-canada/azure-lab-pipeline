@@ -186,7 +186,7 @@
     "resources": [
       {
       "type": "Microsoft.KeyVault/vaults/accessPolicies",
-      "name": "[concat('/subscriptions/487c0957-86dc-470c-b6f5-5b7d64eb39a2/resourceGroups/sic-common-rg/providers/Microsoft.KeyVault/vaults/', parameters('keyVaultName'), '/add')]",
+      "name": "[concat(parameters('keyVaultName'), '/add')]",
       "apiVersion": "2019-09-01",
       "properties": {
         "accessPolicies": [
