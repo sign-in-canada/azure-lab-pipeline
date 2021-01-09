@@ -45,7 +45,7 @@
       },
       "dnsLabelPrefix": {
         "type": "string",
-        "defaultValue": "dev1-auth.id.alpha.canada.ca",
+        "defaultValue": "dev1-auth",
         "metadata": {
           "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
         }
@@ -188,7 +188,7 @@
       "type": "Microsoft.KeyVault/vaults/accessPolicies",
       "name": "[concat(parameters('keyVaultName'), '/add')]",
       "apiVersion": "2019-09-01",
-      "location": "sic-common-rg",
+      "location": "[parameters('setuppyRGName')]",
       "properties": {
         "accessPolicies": [
           {
