@@ -1,6 +1,7 @@
 #!/bin/bash
-SIC-Tarbal-version=SIC-AP-0.0.222
-$SIC-ADMINTOOLS=SIC-Admintools-0.0.26.tgz
+SIC-AP-TARBAL-VER="SIC-AP-0.0.222"
+SIC-ADMINTOOLS="SIC-Admintools-0.0.26.tgz"
+
 # isntall gluu server 
 echo "setting up repos for gluu"
 wget https://repo.gluu.org/rhel/Gluu-rhel7.repo -O /etc/yum.repos.d/Gluu.repo
@@ -12,7 +13,7 @@ yum clean all
 echo "updating hosts file with hostname and IP addresses"
 
 zayn=$(curl -H Metadata:true "http://169.254.169.254/metadata/instance/compute/name?api-version=2017-08-01&format=text")
-hostname="${zayn}.canadacentral.cloudapp.azure.com"
+hostname="${zayn}.id.alpha.canada.ca
 ip=$(curl -H Metadata:true "http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/publicIpAddress?api-version=2017-08-01&format=text")
 privateIP=$(curl -H Metadata:true "http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/privateIpAddress?api-version=2017-08-01&format=text")
 sed -i.bkp "$ a $ip $hostname" /etc/hosts
@@ -34,14 +35,6 @@ yum install -y azure-cli
 echo "installing JQ"
 yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 yum install -y jq
-
-echo "setting up ACME script"
-yum install -y socat
-curl https://get.acme.sh | sh
-#exec bash
-/.acme.sh/acme.sh --issue --standalone -d $hostname
-
-cat /.acme.sh/$hostname/$hostname.key /.acme.sh/$hostname/fullchain.cer > httpd
 
 echo "gluu server install begins"
 mkdir staging && cd staging
@@ -71,12 +64,6 @@ sed -i "/^hostname=/ s/.*/hostname=$hostname/g" setup.properties
 
 echo "copying setup.props file to gluu container"
 cp setup.properties /opt/gluu-server/install/community-edition-setup/
-
-echo "copying certs to gluu container"
-KV_DIR=/opt/gluu-server/install/keyvault/certs
-mkdir -p $KV_DIR
-cp /.acme.sh/$hostname/* $KV_DIR
-echo $hostname > $KV_DIR/hostname_
 
 ssh  -o IdentityFile=/etc/gluu/keys/gluu-console -o Port=60022 -o LogLevel=QUIET \
                 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \

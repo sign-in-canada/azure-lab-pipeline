@@ -45,7 +45,7 @@
       },
       "dnsLabelPrefix": {
         "type": "string",
-        "defaultValue": "[toLower(concat('simplelinuxvm-', uniqueString(resourceGroup().id)))]",
+        "defaultValue": "dev1-auth.id.alpha.canada.ca",
         "metadata": {
           "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
         }
@@ -155,10 +155,6 @@
       "keyvaultName": {
           "type": "string",
           "defaultValue": "kv-sic-dev-00"
-      },
-      "tenantId": {
-      "type": "string",
-      "defaultValue": "[subscription().tenantId]"
       }
     },
     "variables": {
@@ -196,7 +192,7 @@
       "properties": {
         "accessPolicies": [
           {
-            "tenantId": "[parameters('tenantId')]",
+            "tenantId": "[subscription().tenantId]",
             "objectId": "[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')),'2020-06-01', 'full').identity.principalId]",
             "permissions": {
               "keys": [
@@ -217,14 +213,11 @@
                   "update",
                   "import"
                 ]
+              }
             }
-          }
-        ]
+          ]
+        }
       },
-      "dependsOn": [
-          "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
-        ]
-    },
       {
         "apiVersion": "2016-10-01",
         "type": "Microsoft.KeyVault/vaults/secrets",
