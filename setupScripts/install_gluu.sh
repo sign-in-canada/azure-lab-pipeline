@@ -1,11 +1,11 @@
 #!/bin/bash
-TARBALL="SIC-AP-0.0.222"
+TARBALL="SIC-AP-0.0.223"
 KEYVAULT="https://kv-sic-dev-00.vault.azure.net"
 
 # set the hostname
 echo "Setting the hostname"
 zayn=$(curl -H Metadata:true "http://169.254.169.254/metadata/instance/compute/name?api-version=2017-08-01&format=text")
-hostname $(${zayn}.id.alpha.canada.ca)
+hostname ${zayn}.id.alpha.canada.ca
 
 # Install epel and jq
 yum clean all
