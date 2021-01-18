@@ -9,6 +9,7 @@ jobs:
 - job: setup_couchbase
   variables:
   - group: NU-couchbase
+  - group: common
   
   steps:
   - task: AzureResourceManagerTemplateDeployment@3
@@ -46,7 +47,7 @@ jobs:
       azureSubscription: 'Azure subscription 1(2)(a84771c4-d59c-4233-8c65-9e7c8e404eac)'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
-      inlineScript: 'echo $(sic-pipeline-token) | az devops login --organization https://dev.azure.com/info0606/ && az pipelines variable-group variable update --group-id 5  --name cb_host --value $(pvtIPAddress) --project info --organization https://dev.azure.com/info0606/'
+      inlineScript: 'echo $(sic-pipeline-token) | az devops login --organization https://dev.azure.com/tbs-sct/ && az pipelines variable-group variable update --group-id 278  --name cb_host --value $(pvtIPAddress) --project "Sign in Canada - Operations" --organization https://dev.azure.com/tbs-sct/'
       addSpnToEnvironment: true
       useGlobalConfig: true
 
@@ -80,6 +81,7 @@ jobs:
 
   variables: 
   - group: NU-gluu
+  - group: common
   
   steps:
   - task: AzureResourceManagerTemplateDeployment@3
@@ -101,7 +103,7 @@ jobs:
       azureSubscription: 'Azure subscription 1(2)(a84771c4-d59c-4233-8c65-9e7c8e404eac)'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
-      inlineScript: 'echo $(sic-pipeline-token) | az devops login --organization https://dev.azure.com/info0606/ && az pipelines variable-group variable update --group-id 5  --name cb_host --value $(pvtIPAddress) --project info --organization https://dev.azure.com/info0606/'
+      inlineScript: 'echo $(sic-pipeline-token) | az devops login --organization https://dev.azure.com/tbs-sct/ && az pipelines variable-group variable update --group-id 278  --name cb_host --value $(pvtIPAddress) --project "Sign in Canada - Operations" --organization https://dev.azure.com/tbs-sct/'
       addSpnToEnvironment: true
       useGlobalConfig: true
 
