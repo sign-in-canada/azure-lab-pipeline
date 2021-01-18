@@ -1,6 +1,6 @@
 # Pipeline to setup Gluu and Couchbase VMs and setup access policies on the existing keyvault
 trigger: 
-- none
+- main
  
 pool: 
   vmImage: 'ubuntu-latest'
@@ -106,6 +106,7 @@ jobs:
         newCommand="$(commandToExec) $(cb_host)"
         echo $newCommand
         echo $(sic-pipeline-token) | az devops login --organization https://dev.azure.com/tbs-sct/ && az pipelines variable-group variable update --group-id 278  --name install-gluu --value "$newCommand" --project "Sign in Canada - Operations" --organization https://dev.azure.com/tbs-sct/
+        echo $(install-gluu)
       addSpnToEnvironment: true
       useGlobalConfig: true
 
@@ -130,7 +131,7 @@ jobs:
       resourceGroupName: '$(rgName)'
       location: 'Canada Central'
       csmFile: '$(System.DefaultWorkingDirectory)/linuxARMTemplates/install_extension.json'
-      overrideParameters: '-vmName $(vmName) -_artifactsLocation "$(_artifactsLocation)" -commandToExec "$(install-gluu)"'
+      overrideParameters: '-vmName $(vmName) -_artifactsLocation "$(_artifactsLocation)" -commandToExec $(install-gluu)'
       deploymentMode: 'Incremental'
       deploymentOutputs: arm_outputs
  
