@@ -41,9 +41,9 @@
       },
       "OSVersion": {
         "type": "string",
-        "defaultValue": "7.9",
+        "defaultValue": "7_9",
         "allowedValues": [
-          "7.9",
+          "7_9",
           "8.0"
         ],
         "metadata": {
