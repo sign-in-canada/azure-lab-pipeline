@@ -77,7 +77,7 @@ jobs:
       deploymentOutputs: arm_outputs
  
 - job: setup_gluu_server 
-
+  dependsOn: setup_couchbase
   variables: 
   - group: NU-gluu
   - group: common
