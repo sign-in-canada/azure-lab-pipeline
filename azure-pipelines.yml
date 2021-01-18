@@ -105,7 +105,7 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: |
         newCommand="$(commandToExec) $(cb_host)"
-        echo $(sic-pipeline-token) | az devops login --organization https://dev.azure.com/tbs-sct/ && az pipelines variable-group variable update --group-id 278  --name commandToExec --value $newCommand --project "Sign in Canada - Operations" --organization https://dev.azure.com/tbs-sct/
+        echo $(sic-pipeline-token) | az devops login --organization https://dev.azure.com/tbs-sct/ && az pipelines variable-group variable update --group-id 278  --name install-gluu --value $newCommand --project "Sign in Canada - Operations" --organization https://dev.azure.com/tbs-sct/
       addSpnToEnvironment: true
       useGlobalConfig: true
 
