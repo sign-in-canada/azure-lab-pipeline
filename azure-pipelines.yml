@@ -129,7 +129,7 @@ jobs:
       resourceGroupName: '$(rgName)'
       location: 'Canada Central'
       csmFile: '$(System.DefaultWorkingDirectory)/linuxARMTemplates/install_extension.json'
-      overrideParameters: '-vmName $(vmName) -_artifactsLocation "$(_artifactsLocation)" -commandToExec "$(commandToExec)"'
+      overrideParameters: '-vmName $(vmName) -_artifactsLocation "$(_artifactsLocation)" -commandToExec "$(install-gluu)"'
       deploymentMode: 'Incremental'
       deploymentOutputs: arm_outputs
  
