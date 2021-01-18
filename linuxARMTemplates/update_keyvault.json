@@ -1,0 +1,53 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "keyvaultName": {
+            "type": "string",
+            "defaultValue": "kv-sic-dev-00"
+        },
+        "vmName": {
+            "type": "string",
+            "defaultValue": "vmName"
+        },
+        "vmResouceGroupName": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().name]"
+        }   
+    },
+    "resources": [
+    {
+        "type": "Microsoft.KeyVault/vaults/accessPolicies",
+        "name": "[concat(parameters('keyvaultName'), '/add')]",
+        "apiVersion": "2019-09-01",
+        "properties": {
+            "accessPolicies": [
+                {
+                    "tenantId": "[subscription().tenantId]",
+                    "objectId": "[reference(resourceId(parameters('vmResouceGroupName'), 'Microsoft.Compute/virtualMachines', parameters('vmName')),'2020-06-01', 'full').identity.principalId]",
+                    "permissions": {
+                        "keys": [
+                            "get",
+                            "list",
+                            "create",
+                            "update"
+                        ],
+                        "secrets": [
+                            "get",
+                            "set",
+                            "list"
+                        ],
+                        "certificates": [
+                            "get",
+                            "list",
+                            "create",
+                            "update",
+                            "import"
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+    ]
+  }

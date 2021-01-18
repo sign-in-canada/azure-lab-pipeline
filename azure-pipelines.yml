@@ -1,6 +1,6 @@
-# Starter pipeline
+# Pipeline to setup Gluu and Couchbase VMs and setup access policies on the existing keyvault
 trigger: 
-- main
+- none
  
 pool: 
   vmImage: 'ubuntu-latest'
@@ -19,57 +19,68 @@ jobs:
       action: 'Create Or Update Resource Group'
       resourceGroupName: '$(rgName)'
       location: 'Canada Central'
-      templateLocation: 'URL of the file'
-      csmFileLink: 'https://raw.githubusercontent.com/sign-in-canada/azure-lab-pipeline/main/linuxARMTemplates/template.json'
-      csmParametersFileLink: 'https://raw.githubusercontent.com/sign-in-canada/azure-lab-pipeline/main/linuxARMTemplates/parameters.json'
-      overrideParameters: '-adminUsername $(adminUsername) -adminPasswordOrKey "$(adminPasswordOrKey)" -dnsLabelPrefix $(vmName) -networkSecurityGroupName $(networkSecurityGroupName) -OSVersion $(OSVersion) -storageName $(storageName) -subnetName $(subnetName) -virtualNetworkName $(virtualNetworkName) -vmName $(vmName) -_artifactsLocation "$(_artifactsLocation)" -commandToExec "$(commandToExec)" -homeTrafficRule $(homeTrafficRule)'
+      csmFile: '$(System.DefaultWorkingDirectory)/inuxARMTemplates/template_.json'
+      csmParametersFile: '$(System.DefaultWorkingDirectory)/linuxARMTemplates/parameters.json'
+      overrideParameters: '-adminUsername $(adminUsername) -adminPasswordOrKey "$(adminPasswordOrKey)" -dnsLabelPrefix $(vmName) -networkSecurityGroupName $(networkSecurityGroupName) -OSVersion $(OSVersion) -storageName $(storageName) -subnetName $(subnetName) -virtualNetworkName $(virtualNetworkName) -vmName $(vmName) -homeTrafficRule $(homeTrafficRule)'
       deploymentMode: 'Incremental'
-      
-- job: update_setup_props
-  dependsOn: setup_couchbase
-  variables:
-  - group: NU-couchbase
+      deploymentOutputs: arm_outputs
 
-  steps:
-  - script: |
-      echo "couchbase varialbe group test: " $(vmName)
-  - task: AzureCLI@2
+  - task: PowerShell@2
     inputs:
-      azureSubscription: 'sic-nulhaq-rg'
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        az vm show -g $(rgName) -n $(vmName) -d --query privateIps --out tsv > tmpfile1
-        az storage blob download --account-name siccommonstorage --container-name sic-pipeline-artifacts-private --file setup.properties --name setup.properties
-    displayName: 'Couchbase IP and download setup.props blob'
-
-  - script: |
-      echo consume private ip variable 
-      pvtIPadd=$(cat tmpfile1)
-      echo $pvtIPadd
-      ls -al 
-      sed -i "/couchbase_hostname/ s/.*/couchbase_hostname=$pvtIPadd/g" setup.properties
-      cat setup.properties |grep couchbase_hostname
-      echo $(commandToExec) | cut -d ' ' -f 3 > tmpfile2 && cbpass=$(cat tmpfile2) && echo $cbpass
-      echo "running sed command"
-      sed -i "/cb_password/ s/.*/cb_password=$cbpass/g" setup.properties
-      echo "spit out password"
-      cat setup.properties |grep cb_password 
-      echo "the task is done"   
-    displayName: 'Update the setup.properties'
+      targetType: 'inline'
+      script: |
+        $armOutputObj = '$(arm_outputs)' | convertfrom-json
+        $armOutputObj.PSObject.Properties | ForEach-Object {
+            $keyname = $_.Name
+            $value = $_.Value.value
+            ## Creates a standard pipeline variable
+            Write-Output "##vso[task.setvariable variable=$keyName;]$value"
+            
+            ## Creates an output variable
+            Write-Output "##vso[task.setvariable variable=$keyName;isOutput=true]$value"
+            Write-Host "##vso[task.setvariable variable=$keyName;]$value"
+        }  
 
   - task: AzureCLI@2
     inputs:
-      azureSubscription: 'sic-nulhaq-rg'
+      azureSubscription: 'Azure subscription 1(2)(a84771c4-d59c-4233-8c65-9e7c8e404eac)'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
-      inlineScript: 'az storage blob upload --account-name siccommonstorage --container-name sic-pipeline-artifacts-private --file setup.properties --name setup.properties'
-    displayName: 'Uploading to blob'
+      inlineScript: 'echo $(sic-pipeline-token) | az devops login --organization https://dev.azure.com/info0606/ && az pipelines variable-group variable update --group-id 5  --name cb_host --value $(pvtIPAddress) --project info --organization https://dev.azure.com/info0606/'
+      addSpnToEnvironment: true
+      useGlobalConfig: true
 
+  - task: AzureResourceManagerTemplateDeployment@3
+    inputs:
+      deploymentScope: 'Resource Group'
+      azureResourceManagerConnection: 'sic-nulhaq-rg'
+      subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
+      action: 'Create Or Update Resource Group'
+      resourceGroupName: 'sic-common-rg'
+      location: 'Canada Central'
+      csmFile: '$(System.DefaultWorkingDirectory)/inuxARMTemplates/update_keyvault.json'
+      overrideParameters: '-vmName $(vmName) -vmResouceGroupName "$(rgName)"'
+      deploymentMode: 'Incremental'
+
+  - task: AzureResourceManagerTemplateDeployment@3
+    inputs:
+      deploymentScope: 'Resource Group'
+      azureResourceManagerConnection: 'sic-nulhaq-rg'
+      subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
+      action: 'Create Or Update Resource Group'
+      resourceGroupName: '$(rgName)'
+      location: 'Canada Central'
+      csmFile: '$(System.DefaultWorkingDirectory)/inuxARMTemplates/template_.json'
+      csmParametersFile: '$(System.DefaultWorkingDirectory)/linuxARMTemplates/install_extension.json'
+      overrideParameters: '-vmName $(vmName) -_artifactsLocation "$(_artifactsLocation)" -commandToExec "$(commandToExec)"'
+      deploymentMode: 'Incremental'
+      deploymentOutputs: arm_outputs
+ 
 - job: setup_gluu_server 
-  dependsOn: update_setup_props
+
   variables: 
   - group: NU-gluu
+  
   steps:
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
@@ -79,8 +90,44 @@ jobs:
       action: 'Create Or Update Resource Group'
       resourceGroupName: '$(rgName)'
       location: 'Canada Central'
-      templateLocation: 'URL of the file'
-      csmFileLink: 'https://raw.githubusercontent.com/sign-in-canada/azure-lab-pipeline/main/linuxARMTemplates/template.json'
-      csmParametersFileLink: 'https://raw.githubusercontent.com/sign-in-canada/azure-lab-pipeline/main/linuxARMTemplates/parameters.json'
-      overrideParameters: '-adminUsername $(adminUsername) -adminPasswordOrKey "$(adminPasswordOrKey)" -dnsLabelPrefix $(vmName) -networkSecurityGroupName $(networkSecurityGroupName) -OSVersion $(OSVersion) -storageName $(storageName) -subnetName $(subnetName) -virtualNetworkName $(virtualNetworkName) -vmName $(vmName) -_artifactsLocation "$(_artifactsLocation)" -commandToExec "$(commandToExec)" -homeTrafficRule $(homeTrafficRule)'
+      csmFile: '$(System.DefaultWorkingDirectory)/inuxARMTemplates/template_.json'
+      csmParametersFile: '$(System.DefaultWorkingDirectory)/linuxARMTemplates/parameters.json'
+      overrideParameters: '-adminUsername $(adminUsername) -adminPasswordOrKey "$(adminPasswordOrKey)" -dnsLabelPrefix $(vmName) -networkSecurityGroupName $(networkSecurityGroupName) -OSVersion $(OSVersion) -storageName $(storageName) -subnetName $(subnetName) -virtualNetworkName $(virtualNetworkName) -vmName $(vmName) -homeTrafficRule $(homeTrafficRule)'
       deploymentMode: 'Incremental'
+      deploymentOutputs: arm_outputs
+
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: 'Azure subscription 1(2)(a84771c4-d59c-4233-8c65-9e7c8e404eac)'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'echo $(sic-pipeline-token) | az devops login --organization https://dev.azure.com/info0606/ && az pipelines variable-group variable update --group-id 5  --name cb_host --value $(pvtIPAddress) --project info --organization https://dev.azure.com/info0606/'
+      addSpnToEnvironment: true
+      useGlobalConfig: true
+
+  - task: AzureResourceManagerTemplateDeployment@3
+    inputs:
+      deploymentScope: 'Resource Group'
+      azureResourceManagerConnection: 'sic-nulhaq-rg'
+      subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
+      action: 'Create Or Update Resource Group'
+      resourceGroupName: 'sic-common-rg'
+      location: 'Canada Central'
+      csmFile: '$(System.DefaultWorkingDirectory)/inuxARMTemplates/update_keyvault.json'
+      overrideParameters: '-vmName $(vmName) -vmResouceGroupName "$(rgName)"'
+      deploymentMode: 'Incremental'
+
+  - task: AzureResourceManagerTemplateDeployment@3
+    inputs:
+      deploymentScope: 'Resource Group'
+      azureResourceManagerConnection: 'sic-nulhaq-rg'
+      subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
+      action: 'Create Or Update Resource Group'
+      resourceGroupName: '$(rgName)'
+      location: 'Canada Central'
+      csmFile: '$(System.DefaultWorkingDirectory)/inuxARMTemplates/template_.json'
+      csmParametersFile: '$(System.DefaultWorkingDirectory)/linuxARMTemplates/install_extension.json'
+      overrideParameters: '-vmName $(vmName) -_artifactsLocation "$(_artifactsLocation)" -commandToExec "$(commandToExec)"'
+      deploymentMode: 'Incremental'
+      deploymentOutputs: arm_outputs
+ 

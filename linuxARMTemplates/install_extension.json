@@ -1,0 +1,50 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "_artifactsLocation": {
+        "type": "string",
+        "defaultValue": "https://raw.githubusercontent.com/naeemhaq/sign-in-canada/master/gluu-az-template/install_apache.sh",
+        "metadata": {
+            "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+        }
+      },
+      "commandToExec":{
+        "type": "string",
+        "defaultValue": "sh install.sh"
+      },
+      "vmName": {
+        "type": "string",
+        "defaultValue": "vmName"
+      },
+      "location": {
+        "type": "string",
+        "defaultValue": "[resourceGroup().location]",
+        "metadata": {
+        "description": "Location for all resources."
+        }
+      }
+    },
+    "variables": {
+    },
+    "resources": [
+    {
+        "type": "Microsoft.Compute/virtualMachines/extensions",
+        "name": "[concat(parameters('vmName'),'/newuserscript')]",
+        "apiVersion": "2015-05-01-preview",
+        "location": "[parameters('location')]",
+        "properties": {
+            "publisher": "Microsoft.Azure.Extensions",
+            "type": "CustomScript",
+            "typeHandlerVersion": "2.0",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+                "fileUris": [
+                "[parameters('_artifactsLocation')]"
+                ],
+                "commandToExecute": "[parameters('commandToExec')]"
+            }
+        }
+    }
+    ]
+  }

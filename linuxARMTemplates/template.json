@@ -2,17 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-      "_artifactsLocation": {
-        "type": "string",
-        "defaultValue": "https://raw.githubusercontent.com/naeemhaq/sign-in-canada/master/gluu-az-template/install_apache.sh",
-        "metadata": {
-            "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
-        }
-      },
-      "commandToExec":{
-        "type": "string",
-        "defaultValue": "sh install.sh"
-      },
       "vmName": {
         "type": "string",
         "defaultValue": "simpleLinuxVM",
@@ -135,42 +124,13 @@
       "homeTrafficRule": {
         "type": "string",
         "defaultValue": "174.112.28.92/32"
-      },
-      "setuppyAccountName": {
-        "type": "string",
-        "defaultValue": "siccommonstorage"
-      },
-      "setuppyRGName": {
-        "type": "string",
-        "defaultValue": "sic-common-rg"
-      },
-      "containerName": {
-        "type": "string",
-        "defaultValue": "sic-pipeline-artifacts-private"
-      },
-      "baseTime":{
-          "type":"string",
-          "defaultValue": "[utcNow('u')]"
-      },
-      "keyvaultName": {
-          "type": "string",
-          "defaultValue": "kv-sic-dev-00"
       }
     },
     "variables": {
-      "add1Hour": "[dateTimeAdd(parameters('baseTime'), 'PT2H')]",
       "publicIpAddressName": "[concat(parameters('vmName'), 'PublicIP' )]",
       "networkInterfaceName": "[concat(parameters('vmName'),'NetInt')]",
       "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]",
-      "setuppropStorage": "[resourceId(parameters('setuppyRGName'), 'Microsoft.Storage/storageAccounts', parameters('setuppyAccountName'))]",
       "osDiskType": "StandardSSD_LRS",
-      "secretName": "[concat(parameters('keyvaultName'), '/', 'StorageSaSToken')]",
-      "serviceSasFunctionValues": {
-        "canonicalizedResource": "[concat('/blob/', parameters('setuppyAccountName'), '/', parameters('containerName'))]",
-        "signedResource": "c",
-        "signedPermission": "rw",
-        "signedExpiry": "[variables('add1Hour')]"
-      },
       "linuxConfiguration": {
         "disablePasswordAuthentication": true,
         "ssh": {
@@ -184,50 +144,6 @@
       }
     },
     "resources": [
-      {
-      "type": "Microsoft.KeyVault/vaults/accessPolicies",
-      "name": "[concat(parameters('keyVaultName'), '/add')]",
-      "apiVersion": "2019-09-01",
-      "properties": {
-        "accessPolicies": [
-          {
-            "tenantId": "[subscription().tenantId]",
-            "objectId": "[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')),'2020-06-01', 'full').identity.principalId]",
-            "permissions": {
-              "keys": [
-                  "get",
-                  "list",
-                  "create",
-                  "update"
-                ],
-                "secrets": [
-                  "get",
-                  "set",
-                  "list"
-                ],
-                "certificates": [
-                  "get",
-                  "list",
-                  "create",
-                  "update",
-                  "import"
-                ]
-              }
-            }
-          ]
-        }
-      },
-      {
-        "apiVersion": "2016-10-01",
-        "type": "Microsoft.KeyVault/vaults/secrets",
-        "dependsOn": [
-            "[concat('Microsoft.KeyVault/vaults/', parameters('keyvaultName'))]"
-        ],
-        "name": "[variables('secretName')]",
-        "properties": {
-            "value": "[listServiceSas(variables('setuppropStorage'), '2018-07-01', variables('serviceSasFunctionValues')).serviceSasToken]"
-        }
-      },
       {
         "type": "Microsoft.Storage/storageAccounts",
         "name": "[parameters('storageName')]",
@@ -419,41 +335,20 @@
             "emailRecipient": "[parameters('autoShutdownNotificationEmail')]"
           }
         }
-      },
-      {
-        "type": "Microsoft.Compute/virtualMachines/extensions",
-        "name": "[concat(parameters('vmName'),'/newuserscript')]",
-        "apiVersion": "2015-05-01-preview",
-        "location": "[parameters('location')]",
-        "dependsOn": [
-          "[concat('Microsoft.KeyVault/vaults/', parameters('keyvaultName'))]"
-        ],
-        "properties": {
-          "publisher": "Microsoft.Azure.Extensions",
-          "type": "CustomScript",
-          "typeHandlerVersion": "2.0",
-          "autoUpgradeMinorVersion": true,
-          "settings": {
-            "fileUris": [
-              "[parameters('_artifactsLocation')]"
-            ],
-            "commandToExecute": "[parameters('commandToExec')]"
-          }
-        }
       }
     ],
     "outputs": {
-      "adminUsername": {
-        "type": "string",
-        "value": "[parameters('adminUsername')]"
+      "createdVmName": {
+          "type": "string",
+          "value": "[parameters('vmName')]"
       },
-      "hostname": {
-        "type": "string",
-        "value": "[reference(variables('publicIPAddressName')).dnsSettings.fqdn]"
+      "vmResouceGroupName": {
+      "type" : "string",
+      "value": "[resourceGroup().name]"
       },
-      "sshCommand": {
-        "type": "string",
-        "value": "[concat('ssh ', parameters('adminUsername'), '@', reference(variables('publicIPAddressName')).dnsSettings.fqdn)]"
+      "pvtIPAddress": {
+        "value": "[reference(concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'))).ipConfigurations[0].properties.privateIPAddress]",  
+        "type": "string" 
       }
     }
   }
