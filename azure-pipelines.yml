@@ -44,7 +44,7 @@ jobs:
 
   - task: AzureCLI@2
     inputs:
-      azureSubscription: 'Azure subscription 1(2)(a84771c4-d59c-4233-8c65-9e7c8e404eac)'
+      azureSubscription: 'sic-nulhaq-rg'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'echo $(sic-pipeline-token) | az devops login --organization https://dev.azure.com/tbs-sct/ && az pipelines variable-group variable update --group-id 278  --name cb_host --value $(pvtIPAddress) --project "Sign in Canada - Operations" --organization https://dev.azure.com/tbs-sct/'
@@ -100,7 +100,7 @@ jobs:
 
   - task: AzureCLI@2
     inputs:
-      azureSubscription: 'Azure subscription 1(2)(a84771c4-d59c-4233-8c65-9e7c8e404eac)'
+      azureSubscription: 'sic-nulhaq-rg'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'echo $(sic-pipeline-token) | az devops login --organization https://dev.azure.com/tbs-sct/ && az pipelines variable-group variable update --group-id 270  --name commandToExec --value "$(commandToExec) $(cb_host)" --project "Sign in Canada - Operations" --organization https://dev.azure.com/tbs-sct/'
