@@ -59,7 +59,7 @@ jobs:
       action: 'Create Or Update Resource Group'
       resourceGroupName: 'sic-common-rg'
       location: 'Canada Central'
-      csmFile: '$(System.DefaultWorkingDirectory)/inuxARMTemplates/update_keyvault.json'
+      csmFile: '$(System.DefaultWorkingDirectory)/linuxARMTemplates/update_keyvault.json'
       overrideParameters: '-vmName $(vmName) -vmResouceGroupName "$(rgName)"'
       deploymentMode: 'Incremental'
 
@@ -71,7 +71,7 @@ jobs:
       action: 'Create Or Update Resource Group'
       resourceGroupName: '$(rgName)'
       location: 'Canada Central'
-      csmFile: '$(System.DefaultWorkingDirectory)/inuxARMTemplates/install_extension.json'
+      csmFile: '$(System.DefaultWorkingDirectory)/linuxARMTemplates/install_extension.json'
       overrideParameters: '-vmName $(vmName) -_artifactsLocation "$(_artifactsLocation)" -commandToExec "$(commandToExec)"'
       deploymentMode: 'Incremental'
       deploymentOutputs: arm_outputs
