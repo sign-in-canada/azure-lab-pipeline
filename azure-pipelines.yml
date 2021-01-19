@@ -47,7 +47,7 @@ jobs:
       azureSubscription: 'sic-nulhaq-rg'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
-      inlineScript: 'echo $(sic-pipeline-token) | az devops login --organization https://dev.azure.com/tbs-sct/ && az pipelines variable-group variable update --group-id 278  --name cb_host --value $(pvtIPAddress) --project "Sign in Canada - Operations" --organization https://dev.azure.com/tbs-sct/'
+      inlineScript: 'echo $(sic-pipeline-token) | az devops login --organization https://dev.azure.com/tbs-sct/ && az pipelines variable-group variable update --group-id 278  --name install-gluu --value "sh install_gluu.sh $(pvtIPAddress)" --project "Sign in Canada - Operations" --organization https://dev.azure.com/tbs-sct/'
       addSpnToEnvironment: true
       useGlobalConfig: true
 
@@ -79,8 +79,8 @@ jobs:
 - job: setup_gluu_server 
   dependsOn: setup_couchbase
   variables: 
+  - group: common  
   - group: NU-gluu
-  - group: common
   
   steps:
   - task: AzureResourceManagerTemplateDeployment@3
@@ -96,19 +96,6 @@ jobs:
       overrideParameters: '-adminUsername $(adminUsername) -adminPasswordOrKey "$(adminPasswordOrKey)" -dnsLabelPrefix $(vmName) -networkSecurityGroupName $(networkSecurityGroupName) -OSVersion $(OSVersion) -storageName $(storageName) -subnetName $(subnetName) -virtualNetworkName $(virtualNetworkName) -vmName $(vmName) -homeTrafficRule $(homeTrafficRule)'
       deploymentMode: 'Incremental'
       deploymentOutputs: arm_outputs
-
-  - task: AzureCLI@2
-    inputs:
-      azureSubscription: 'sic-nulhaq-rg'
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        newCommand="$(commandToExec) $(cb_host)"
-        echo $newCommand
-        echo $(sic-pipeline-token) | az devops login --organization https://dev.azure.com/tbs-sct/ && az pipelines variable-group variable update --group-id 278  --name install-gluu --value "$newCommand" --project "Sign in Canada - Operations" --organization https://dev.azure.com/tbs-sct/
-        echo $(install-gluu)
-      addSpnToEnvironment: true
-      useGlobalConfig: true
 
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
@@ -131,7 +118,7 @@ jobs:
       resourceGroupName: '$(rgName)'
       location: 'Canada Central'
       csmFile: '$(System.DefaultWorkingDirectory)/linuxARMTemplates/install_extension.json'
-      overrideParameters: '-vmName $(vmName) -_artifactsLocation "$(_artifactsLocation)" -commandToExec $(install-gluu)'
+      overrideParameters: '-vmName $(vmName) -_artifactsLocation "$(_artifactsLocation)" -commandToExec "$(install-gluu)"'
       deploymentMode: 'Incremental'
       deploymentOutputs: arm_outputs
  
