@@ -25,6 +25,7 @@ jobs:
       overrideParameters: '-adminUsername $(adminUsername) -adminPasswordOrKey "$(adminPasswordOrKey)" -dnsLabelPrefix $(vmName) -networkSecurityGroupName $(networkSecurityGroupName) -OSVersion $(OSVersion) -storageName $(storageName) -subnetName $(subnetName) -virtualNetworkName $(virtualNetworkName) -vmName $(vmName) -homeTrafficRule $(homeTrafficRule)'
       deploymentMode: 'Incremental'
       deploymentOutputs: arm_outputs
+    displayName: ARM Coucbase VM
 
   - task: PowerShell@2
     inputs:
@@ -40,7 +41,8 @@ jobs:
             ## Creates an output variable
             Write-Output "##vso[task.setvariable variable=$keyName;isOutput=true]$value"
             Write-Host "##vso[task.setvariable variable=$keyName;]$value"
-        }  
+        }
+    displayName: Parse ARM Output  
 
   - task: AzureCLI@2
     inputs:
@@ -50,6 +52,7 @@ jobs:
       inlineScript: 'echo $(sic-pipeline-token) | az devops login --organization https://dev.azure.com/tbs-sct/ && az pipelines variable-group variable update --group-id 278  --name install-gluu --value "sh install_gluu.sh $(pvtIPAddress)" --project "Sign in Canada - Operations" --organization https://dev.azure.com/tbs-sct/'
       addSpnToEnvironment: true
       useGlobalConfig: true
+    displayName: Update CB IP address
 
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
@@ -62,6 +65,7 @@ jobs:
       csmFile: '$(System.DefaultWorkingDirectory)/linuxARMTemplates/update_keyvault.json'
       overrideParameters: '-vmName $(vmName) -vmResouceGroupName "$(rgName)"'
       deploymentMode: 'Incremental'
+    displayName: Keyvault AccessPolicy
 
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
@@ -75,6 +79,7 @@ jobs:
       overrideParameters: '-vmName $(vmName) -_artifactsLocation "$(_artifactsLocation)" -commandToExec "$(commandToExec)"'
       deploymentMode: 'Incremental'
       deploymentOutputs: arm_outputs
+    displayName: Install Couchbase Script
  
 - job: setup_gluu_server 
   dependsOn: setup_couchbase
@@ -96,6 +101,7 @@ jobs:
       overrideParameters: '-adminUsername $(adminUsername) -adminPasswordOrKey "$(adminPasswordOrKey)" -dnsLabelPrefix $(vmName) -networkSecurityGroupName $(networkSecurityGroupName) -OSVersion $(OSVersion) -storageName $(storageName) -subnetName $(subnetName) -virtualNetworkName $(virtualNetworkName) -vmName $(vmName) -homeTrafficRule $(homeTrafficRule)'
       deploymentMode: 'Incremental'
       deploymentOutputs: arm_outputs
+    displayName: ARM Gluu VM
 
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
@@ -108,6 +114,7 @@ jobs:
       csmFile: '$(System.DefaultWorkingDirectory)/linuxARMTemplates/update_keyvault.json'
       overrideParameters: '-vmName $(vmName) -vmResouceGroupName "$(rgName)"'
       deploymentMode: 'Incremental'
+    displayName: Keyvault AccessPolicy
 
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
@@ -121,4 +128,5 @@ jobs:
       overrideParameters: '-vmName $(vmName) -_artifactsLocation "$(_artifactsLocation)" -commandToExec "$(install-gluu)"'
       deploymentMode: 'Incremental'
       deploymentOutputs: arm_outputs
+    displayName: Install Gluu Script
  
