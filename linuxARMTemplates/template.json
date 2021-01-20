@@ -32,6 +32,13 @@
           "description": "SSH Key or password for the Virtual Machine. SSH key is recommended."
         }
       },
+      "resourceTags": {
+        "type": "object",
+        "defaultValue": {
+            "Environment": "Dev",
+            "Project": "AC"
+        }
+      },
       "dnsLabelPrefix": {
         "type": "string",
         "defaultValue": "dev1-auth",
@@ -267,6 +274,7 @@
         "apiVersion": "2019-07-01",
         "name": "[parameters('vmName')]",
         "location": "[parameters('location')]",
+        "tags": "[parameters('resourceTags')]",
         "dependsOn": [
           "[resourceId('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'))]"
         ],
