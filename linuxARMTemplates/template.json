@@ -35,8 +35,9 @@
       "resourceTags": {
         "type": "object",
         "defaultValue": {
-            "Environment": "Dev",
-            "Project": "AP"
+            "ENVIRONMENT": "DEV2",
+            "PROJECT": "AP",
+            "KEYVAULT": "kv-sic-dev-00"
         }
       },
       "dnsLabelPrefix": {
