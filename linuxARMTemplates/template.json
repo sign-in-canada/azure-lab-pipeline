@@ -36,7 +36,7 @@
         "type": "object",
         "defaultValue": {
             "Environment": "Dev",
-            "Project": "AC"
+            "Project": "AP"
         }
       },
       "dnsLabelPrefix": {
