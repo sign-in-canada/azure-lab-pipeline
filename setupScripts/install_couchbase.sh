@@ -74,6 +74,8 @@ export CB_REST_PASSWORD=$(fetchSecret ${product}GluuPW | openssl enc -d -des-ede
 
 echo "install Couchbase"  
 #sudo yum install -y https://packages.couchbase.com/releases/couchbase-release/couchbase-release-1.0-x86_64.rpm
+curl -O https://packages.couchbase.com/releases/couchbase-release/couchbase-release-1.0-x86_64.rpm
+sudo rpm -i ./couchbase-release-1.0-x86_64.rpm
 sudo yum install -y couchbase-server
 
 echo "waiting for services to start"
