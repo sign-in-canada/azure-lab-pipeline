@@ -164,7 +164,7 @@ if [ "$product" == "AP" ] ; then
 fi
 
 echo "Updating packages"
-yum update -y
+#yum update -y
 echo "Couchbase cluster ${environment}-$product has been created on $(hostname)"
 echo "pre-installation steps"
 mkdir /etc/tuned/no-thp
