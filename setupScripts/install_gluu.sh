@@ -5,8 +5,6 @@ if [ "$#" -ne 1 ]; then
     exit
 fi
 
-echo ${1}
-
 TARBALL="SIC-AP-0.0.223"
 KEYVAULT="https://kv-sic-dev-00.vault.azure.net"
 
@@ -37,9 +35,6 @@ export KEYVAULT_URL=${KEYVAULT}
 export METADATA_URL=https://sicqa.blob.core.windows.net/saml/SIC-Nonprod-signed.xml
 export CB_HOSTS=${1}
 
-echo "Couchbase IP address without qoutes: " $CB_HOSTS
-echo "Couchbase IP address within no brackets: $CB_HOSTS "
-echo "Couchbase IP address outside of qoutes and brackets" ${CB_HOSTS}
-echo "Couchbase IP address inside of qoutes and brackets ${CB_HOSTS}"
+echo "Couchbase IP address" $CB_HOSTS
 
 sh install.sh ${TARBALL}

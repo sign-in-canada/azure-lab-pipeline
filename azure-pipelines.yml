@@ -115,16 +115,6 @@ jobs:
       overrideParameters: '-vmName $(vmName) -vmResouceGroupName "$(rgName)"'
       deploymentMode: 'Incremental'
     displayName: Keyvault AccessPolicy
-  - task: Bash@3
-    displayName: couchbaseIP
-    inputs:
-      targetType: 'inline'
-      script: |
-        # Write your commands here
-        echo "output test of couchbase IP address"
-        echo $(install-gluu)
-        echo "$(install-gluu)"
-        echo "${install-gluu}"
     
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
