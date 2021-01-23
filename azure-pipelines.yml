@@ -15,7 +15,7 @@ jobs:
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
       deploymentScope: 'Resource Group'
-      azureResourceManagerConnection: 'sic-nulhaq-rg'
+      azureResourceManagerConnection: '$(rgName)'
       subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
       action: 'Create Or Update Resource Group'
       resourceGroupName: '$(rgName)'
@@ -46,7 +46,7 @@ jobs:
 
   - task: AzureCLI@2
     inputs:
-      azureSubscription: 'sic-nulhaq-rg'
+      azureSubscription: '$(rgName)'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'echo $(sic-pipeline-token) | az devops login --organization https://dev.azure.com/tbs-sct/ && az pipelines variable-group variable update --group-id 278  --name install-gluu --value "sh install_gluu.sh $(pvtIPAddress)" --project "Sign in Canada - Operations" --organization https://dev.azure.com/tbs-sct/'
@@ -57,7 +57,7 @@ jobs:
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
       deploymentScope: 'Resource Group'
-      azureResourceManagerConnection: 'sic-nulhaq-rg'
+      azureResourceManagerConnection: '$(rgName)'
       subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
       action: 'Create Or Update Resource Group'
       resourceGroupName: 'sic-common-rg'
@@ -70,7 +70,7 @@ jobs:
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
       deploymentScope: 'Resource Group'
-      azureResourceManagerConnection: 'sic-nulhaq-rg'
+      azureResourceManagerConnection: '$(rgName)'
       subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
       action: 'Create Or Update Resource Group'
       resourceGroupName: '$(rgName)'
@@ -91,7 +91,7 @@ jobs:
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
       deploymentScope: 'Resource Group'
-      azureResourceManagerConnection: 'sic-nulhaq-rg'
+      azureResourceManagerConnection: '$(rgName)'
       subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
       action: 'Create Or Update Resource Group'
       resourceGroupName: '$(rgName)'
@@ -106,7 +106,7 @@ jobs:
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
       deploymentScope: 'Resource Group'
-      azureResourceManagerConnection: 'sic-nulhaq-rg'
+      azureResourceManagerConnection: '$(rgName)'
       subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
       action: 'Create Or Update Resource Group'
       resourceGroupName: 'sic-common-rg'
@@ -119,7 +119,7 @@ jobs:
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
       deploymentScope: 'Resource Group'
-      azureResourceManagerConnection: 'sic-nulhaq-rg'
+      azureResourceManagerConnection: '$(rgName)'
       subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
       action: 'Create Or Update Resource Group'
       resourceGroupName: '$(rgName)'
@@ -132,7 +132,7 @@ jobs:
  
   - task: AzureCLI@2
     inputs:
-      azureSubscription: 'sic-nulhaq-rg'
+      azureSubscription: '$(rgName)'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
