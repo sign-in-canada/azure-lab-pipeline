@@ -130,3 +130,12 @@ jobs:
       deploymentOutputs: arm_outputs
     displayName: Install Gluu Script
  
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: 'sic-nulhaq-rg'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        pubIP=$(az vm show -g $(rgName) -n $(vmName) -d --query publicIps --out tsv)
+        az network dns record-set a add-record -g $(rgName) -z id.alpha.canada.ca -n $(vmName) -a $pubIP
+    displayName: 'update DNSZone Record'
