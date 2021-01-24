@@ -137,5 +137,5 @@ jobs:
       scriptLocation: 'inlineScript'
       inlineScript: |
         pubIP=$(az vm show -g $(rgName) -n $(vmName) -d --query publicIps --out tsv)
-        az network dns record-set a add-record -g $(rgName) -z id.alpha.canada.ca -n $(vmName) -a $pubIP
+        az network dns record-set a add-record -g 'sic-networking-rg' -z id.alpha.canada.ca -n $(vmName) -a $pubIP
     displayName: 'update DNSZone Record'
