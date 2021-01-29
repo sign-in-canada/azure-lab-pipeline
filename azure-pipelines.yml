@@ -15,16 +15,17 @@ jobs:
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
       deploymentScope: 'Resource Group'
-      azureResourceManagerConnection: 'sic-nulhaq-rg'
+      azureResourceManagerConnection: 'Sign in Canada Service Connection'
       subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
       action: 'Create Or Update Resource Group'
       resourceGroupName: '$(rgName)'
       location: 'Canada Central'
+      templateLocation: 'Linked artifact'
       csmFile: '$(System.DefaultWorkingDirectory)/linuxARMTemplates/template.json'
       csmParametersFile: '$(System.DefaultWorkingDirectory)/linuxARMTemplates/parameters.json'
       overrideParameters: '-adminUsername $(adminUsername) -adminPasswordOrKey "$(adminPasswordOrKey)" -dnsLabelPrefix $(vmName) -networkSecurityGroupName $(networkSecurityGroupName) -OSVersion $(OSVersion) -storageName $(storageName) -subnetName $(subnetName) -virtualNetworkName $(virtualNetworkName) -vmName $(vmName) -homeTrafficRule $(homeTrafficRule)'
       deploymentMode: 'Incremental'
-      deploymentOutputs: arm_outputs
+      deploymentOutputs: 'arm_outputs'
     displayName: ARM Coucbase VM
 
   - task: PowerShell@2
@@ -46,7 +47,7 @@ jobs:
 
   - task: AzureCLI@2
     inputs:
-      azureSubscription: 'sic-nulhaq-rg'
+      azureSubscription: 'Sign in Canada Service Connection'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'echo $(sic-pipeline-token) | az devops login --organization https://dev.azure.com/tbs-sct/ && az pipelines variable-group variable update --group-id 278  --name install-gluu --value "sh install_gluu.sh $(pvtIPAddress)" --project "Sign in Canada - Operations" --organization https://dev.azure.com/tbs-sct/'
@@ -57,11 +58,12 @@ jobs:
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
       deploymentScope: 'Resource Group'
-      azureResourceManagerConnection: 'sic-nulhaq-rg'
+      azureResourceManagerConnection: 'Sign in Canada Service Connection'
       subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
       action: 'Create Or Update Resource Group'
       resourceGroupName: 'sic-common-rg'
       location: 'Canada Central'
+      templateLocation: 'Linked artifact'
       csmFile: '$(System.DefaultWorkingDirectory)/linuxARMTemplates/update_keyvault.json'
       overrideParameters: '-vmName $(vmName) -vmResouceGroupName "$(rgName)"'
       deploymentMode: 'Incremental'
@@ -70,15 +72,16 @@ jobs:
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
       deploymentScope: 'Resource Group'
-      azureResourceManagerConnection: 'sic-nulhaq-rg'
+      azureResourceManagerConnection: 'Sign in Canada Service Connection'
       subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
       action: 'Create Or Update Resource Group'
       resourceGroupName: '$(rgName)'
       location: 'Canada Central'
+      templateLocation: 'Linked artifact'
       csmFile: '$(System.DefaultWorkingDirectory)/linuxARMTemplates/install_extension.json'
       overrideParameters: '-vmName $(vmName) -_artifactsLocation "$(_artifactsLocation)" -commandToExec "$(commandToExec)"'
       deploymentMode: 'Incremental'
-      deploymentOutputs: arm_outputs
+      deploymentOutputs: 'arm_outputs'
     displayName: Install Couchbase Script
  
 - job: setup_gluu_server 
@@ -91,26 +94,28 @@ jobs:
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
       deploymentScope: 'Resource Group'
-      azureResourceManagerConnection: 'sic-nulhaq-rg'
+      azureResourceManagerConnection: 'Sign in Canada Service Connection'
       subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
       action: 'Create Or Update Resource Group'
       resourceGroupName: '$(rgName)'
       location: 'Canada Central'
+      templateLocation: 'Linked artifact'
       csmFile: '$(System.DefaultWorkingDirectory)/linuxARMTemplates/template.json'
       csmParametersFile: '$(System.DefaultWorkingDirectory)/linuxARMTemplates/parameters.json'
       overrideParameters: '-adminUsername $(adminUsername) -adminPasswordOrKey "$(adminPasswordOrKey)" -dnsLabelPrefix $(vmName) -networkSecurityGroupName $(networkSecurityGroupName) -OSVersion $(OSVersion) -storageName $(storageName) -subnetName $(subnetName) -virtualNetworkName $(virtualNetworkName) -vmName $(vmName) -homeTrafficRule $(homeTrafficRule)'
       deploymentMode: 'Incremental'
-      deploymentOutputs: arm_outputs
+      deploymentOutputs: 'arm_outputs'
     displayName: ARM Gluu VM
 
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
       deploymentScope: 'Resource Group'
-      azureResourceManagerConnection: 'sic-nulhaq-rg'
+      azureResourceManagerConnection: 'Sign in Canada Service Connection'
       subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
       action: 'Create Or Update Resource Group'
       resourceGroupName: 'sic-common-rg'
       location: 'Canada Central'
+      templateLocation: 'Linked artifact'
       csmFile: '$(System.DefaultWorkingDirectory)/linuxARMTemplates/update_keyvault.json'
       overrideParameters: '-vmName $(vmName) -vmResouceGroupName "$(rgName)"'
       deploymentMode: 'Incremental'
@@ -119,21 +124,22 @@ jobs:
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
       deploymentScope: 'Resource Group'
-      azureResourceManagerConnection: 'sic-nulhaq-rg'
+      azureResourceManagerConnection: 'Sign in Canada Service Connection'
       subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
       action: 'Create Or Update Resource Group'
       resourceGroupName: '$(rgName)'
       location: 'Canada Central'
+      templateLocation: 'Linked artifact'
       csmFile: '$(System.DefaultWorkingDirectory)/linuxARMTemplates/install_extension.json'
       overrideParameters: '-vmName $(vmName) -_artifactsLocation "$(_artifactsLocation)" -commandToExec "$(install-gluu)"'
       deploymentMode: 'Incremental'
-      deploymentOutputs: arm_outputs
+      deploymentOutputs: 'arm_outputs'
     displayName: Install Gluu Script
  
   - task: AzureCLI@2
     displayName: Update DNS Record
     inputs:
-      azureSubscription: 'sic-nulhaq-rg'
+      azureSubscription: 'Sign in Canada Service Connection'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: |
