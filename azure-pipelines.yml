@@ -137,12 +137,11 @@ jobs:
     displayName: Install Gluu Script
  
   - task: AzureCLI@2
-    displayName: Update DNS Record
     inputs:
-      azureSubscription: 'Sign in Canada Service Connection'
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
+     azureSubscription: 'Sign in Canada Service Connection'
+     scriptType: 'bash'
+     scriptLocation: 'inlineScript'
+     inlineScript: |
         if az network dns record-set cname list -g sic-networking-rg -z id.alpha.canada.ca | grep $(vmName) ; then
           internaldnsname=$(vmName).canadacentral.cloudapp.azure.com
           az network dns record-set cname set-record -g sic-networking-rg -z id.alpha.canada.ca -n $(vmName) -c $internaldnsname
@@ -150,3 +149,5 @@ jobs:
           pubIP=$(az vm show -g $(rgName) -n $(vmName) -d --query publicIps --out tsv)
           az network dns record-set a add-record -g 'sic-networking-rg' -z id.alpha.canada.ca -n $vmName -a $pubIP
         fi
+     addSpnToEnvironment: true
+     useGlobalConfig: true
