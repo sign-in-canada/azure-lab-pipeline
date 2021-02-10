@@ -8,7 +8,7 @@ pool:
 jobs:
 - job: setup_couchbase
   variables:
-  - group: davmason-couchbase
+  - group: DAVMASON-couchbase
   - group: common
   
   steps:
@@ -88,7 +88,7 @@ jobs:
   dependsOn: setup_couchbase
   variables: 
   - group: common  
-  - group: davmason-gluu
+  - group: DAVMASON-gluu
   
   steps:
   - task: AzureResourceManagerTemplateDeployment@3
