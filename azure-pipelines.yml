@@ -50,7 +50,7 @@ jobs:
       azureSubscription: 'Sign in Canada Service Connection'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
-      inlineScript: 'echo $(sic-pipeline-dmasontoken) | az devops login --organization https://dev.azure.com/tbs-sct/ && az pipelines variable-group variable update --group-id 287  --name install-gluu --value "sh install_gluu.sh $(pvtIPAddress)" --project "Sign in Canada" --organization https://dev.azure.com/tbs-sct/'
+      inlineScript: 'echo $(sic-pipeline-dmasontoken) | az devops login --organization https://dev.azure.com/tbs-sct/ && az pipelines variable-group variable update --group-id 287  --name install-gluu --value "sh install_gluu.sh $(pvtIPAddress)" --project "Sign in Canada - Operations" --organization https://dev.azure.com/tbs-sct/'
       addSpnToEnvironment: true
       useGlobalConfig: true
     displayName: Update CB IP address
