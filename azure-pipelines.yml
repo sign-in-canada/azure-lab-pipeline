@@ -1,6 +1,6 @@
 # Pipeline to setup Gluu and Couchbase VMs and setup access policies on the existing keyvault
 trigger: 
-- main
+- env/davmason-private
  
 pool: 
   vmImage: 'ubuntu-latest'
@@ -50,7 +50,7 @@ jobs:
       azureSubscription: 'sic-dmason-rg'
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
-      inlineScript: 'echo $(sic-pipeline-token) | az devops login --organization https://dev.azure.com/tbs-sct/ && az pipelines variable-group variable update --group-id 278  --name install-gluu --value "sh install_gluu.sh $(pvtIPAddress)" --project "Sign in Canada - Operations" --organization https://dev.azure.com/tbs-sct/'
+      inlineScript: 'echo $(sic-pipeline-dmasontoken) | az devops login --organization https://dev.azure.com/tbs-sct/ && az pipelines variable-group variable update --group-id 278  --name install-gluu --value "sh install_gluu.sh $(pvtIPAddress)" --project "Sign in Canada - Operations" --organization https://dev.azure.com/tbs-sct/'
       addSpnToEnvironment: true
       useGlobalConfig: true
     displayName: Update CB IP address
