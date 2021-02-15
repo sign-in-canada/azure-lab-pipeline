@@ -57,11 +57,10 @@ jobs:
 
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
-      deploymentScope: 'Resource Group'
+      deploymentScope: 'Subscription'
       azureResourceManagerConnection: 'sic-dmason-rg'
       subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
       resourceGroupName: 'sic-common-rg'
-      action: 'Create Or Update Resource Group'
       location: 'Canada Central'
       templateLocation: 'Linked artifact'
       csmFile: '$(System.DefaultWorkingDirectory)/linuxARMTemplates/update_keyvault.json'
@@ -109,11 +108,9 @@ jobs:
 
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
-      deploymentScope: 'Resource Group'
-      azureResourceManagerConnection: 'sic-dmason-rg'
+      deploymentScope: 'Subscription'
+      azureResourceManagerConnection: 'sic-common-rg'
       subscriptionId: '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
-      action: 'Create Or Update Resource Group'
-      resourceGroupName: 'sic-common-rg'
       location: 'Canada Central'
       templateLocation: 'Linked artifact'
       csmFile: '$(System.DefaultWorkingDirectory)/linuxARMTemplates/update_keyvault.json'
