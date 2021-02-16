@@ -142,8 +142,8 @@ jobs:
      scriptType: 'bash'
      scriptLocation: 'inlineScript'
      inlineScript: |
-        az account show
-        az account -s '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
+        /usr/bin/az account show
+        /usr/bin/az account set --subscription '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
         if az network dns record-set cname list -g sic-networking-rg -z id.alpha.canada.ca | grep $(vmName) ; then
           internaldnsname=$(vmName).canadacentral.cloudapp.azure.com
           az network dns record-set cname set-record -g sic-networking-rg -z id.alpha.canada.ca -n $(vmName) -c $internaldnsname
