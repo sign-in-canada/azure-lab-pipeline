@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ "$#" -ne 1 ]; then
+if [ "$#" -ne 2 ]; then
     echo "Please specify Couchbase IP and Acceptance Platform version number"
     echo "./install.sh 10.0.1.4 SIC-AP-1.0.23"
     exit
