@@ -62,7 +62,7 @@ jobs:
          }
        }
      }' \
-     $(System.TeamFoundationCollectionUri)/$(System.TeamProject)/_apis/distributedtask/variablegroups/$(common-var-group-id)?api-version=5.0-preview.1
+     $(System.TeamFoundationCollectionUri)/Sign%20in%20Canada/_apis/distributedtask/variablegroups/$(common-var-group-id)?api-version=5.0-preview.1
     displayName: Update CB IP address
 
   - task: AzureResourceManagerTemplateDeployment@3
