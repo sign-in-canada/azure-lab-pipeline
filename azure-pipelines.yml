@@ -9,7 +9,8 @@ jobs:
 - job: setup_couchbase
   variables:
   - group: NU-couchbase
-  - group: common
+  - group: update-couchbase-ip
+  - group: APlatform-version
   
   steps:
   - task: AzureResourceManagerTemplateDeployment@3
@@ -48,21 +49,21 @@ jobs:
   - bash: |
      curl -fL -XPUT -H "Authorization:Bearer $(System.AccessToken)" -H "Content-Type:application/json" \
      -d '{
-       "id": "$(common-var-group-id)",
+       "id": "$(update-couchbase-ip-vargroup-id)",
        "type": "Vsts",
-       "name": "common",
+       "name": "update-couchbase-ip",
        "variables": {
-         "common-var-group-id": {
+         "update-couchbase-ip-vargroup-id": {
            "isSecret": false,
            "value": "287"
          },
          "install-gluu": {
            "isSecret": false,
-           "value": "sh install_gluu.sh $(pvtIPAddress)"
+           "value": "sh install_gluu.sh $(pvtIPAddress) $(ac-version)"
          }
        }
      }' \
-     $(System.TeamFoundationCollectionUri)/Sign%20in%20Canada/_apis/distributedtask/variablegroups/$(common-var-group-id)?api-version=5.0-preview.1
+     $(System.TeamFoundationCollectionUri)/Sign%20in%20Canada/_apis/distributedtask/variablegroups/$(update-couchbase-ip-vargroup-id)?api-version=5.0-preview.1
     displayName: Update CB IP address
 
   - task: AzureResourceManagerTemplateDeployment@3
@@ -97,7 +98,7 @@ jobs:
 - job: setup_gluu_server 
   dependsOn: setup_couchbase
   variables: 
-  - group: common  
+  - group: update-couchbase-ip-vargroup-id 
   - group: NU-gluu
   
   steps:
