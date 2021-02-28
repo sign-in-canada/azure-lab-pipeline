@@ -52,6 +52,10 @@ jobs:
        "type": "Vsts",
        "name": "common",
        "variables": {
+         "common-var-group-id": {
+           "isSecret": false,
+           "value": "287"
+         },
          "install-gluu": {
            "isSecret": false,
            "value": "sh install_gluu.sh $(pvtIPAddress)"
