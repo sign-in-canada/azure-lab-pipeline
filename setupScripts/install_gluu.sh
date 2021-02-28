@@ -1,11 +1,11 @@
 #!/bin/bash
 if [ "$#" -ne 1 ]; then
-    echo "Please specify Couchbase IP"
-    echo "./install.sh 10.0.1.4"
+    echo "Please specify Couchbase IP and Acceptance Platform version number"
+    echo "./install.sh 10.0.1.4 SIC-AP-1.0.23"
     exit
 fi
 
-TARBALL="SIC-AP-0.0.223"
+TARBALL=${2}
 KEYVAULT="https://kv-sic-dev-00.vault.azure.net"
 
 # set the hostname
