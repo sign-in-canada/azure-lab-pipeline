@@ -45,14 +45,20 @@ jobs:
         }
     displayName: Parse ARM Output  
 
-  - task: AzureCLI@2
-    inputs:
-      azureSubscription: 'Sign in Canada Service Connection'
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: 'echo $(sic-pipeline-token) | az devops login --organization https://dev.azure.com/tbs-sct/ && az pipelines variable-group variable update --group-id 287  --name install-gluu --value "sh install_gluu.sh $(pvtIPAddress)" --project "Sign in Canada" --organization https://dev.azure.com/tbs-sct/'
-      addSpnToEnvironment: true
-      useGlobalConfig: true
+  - bash: |
+     curl -fL -XPUT -H "Authorization:Bearer $(System.AccessToken)" -H "Content-Type:application/json" \
+     -d '{
+       "id": "$(common-var-group-id)",
+       "type": "Vsts",
+       "name": "common",
+       "variables": {
+         "install-gluu": {
+           "isSecret": false,
+           "value": "sh install_gluu.sh $(pvtIPAddress)"
+         }
+       }
+     }' \
+     $(System.TeamFoundationCollectionUri)/$(System.TeamProject)/_apis/distributedtask/variablegroups/$(common-var-group-id)?api-version=5.0-preview.1
     displayName: Update CB IP address
 
   - task: AzureResourceManagerTemplateDeployment@3
