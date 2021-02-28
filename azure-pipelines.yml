@@ -47,6 +47,7 @@ jobs:
     displayName: Parse ARM Output  
 
   - bash: |
+     echo "update CP IP address and Acceptance Platform version number"
      curl -fL -XPUT -H "Authorization:Bearer $(System.AccessToken)" -H "Content-Type:application/json" \
      -d '{
        "id": "$(update-couchbase-ip-vargroup-id)",
@@ -64,7 +65,7 @@ jobs:
        }
      }' \
      $(System.TeamFoundationCollectionUri)/Sign%20in%20Canada/_apis/distributedtask/variablegroups/$(update-couchbase-ip-vargroup-id)?api-version=5.0-preview.1
-    displayName: Update CB IP address
+    displayName: Update CB IP address & AC version
 
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
@@ -98,7 +99,7 @@ jobs:
 - job: setup_gluu_server 
   dependsOn: setup_couchbase
   variables: 
-  - group: update-couchbase-ip-vargroup-id 
+  - group: update-couchbase-ip
   - group: NU-gluu
   
   steps:
