@@ -81,6 +81,19 @@ jobs:
       deploymentMode: 'Incremental'
     displayName: Keyvault AccessPolicy
 
+  - task: AzureCLI@2
+    inputs:
+     azureSubscription: 'Sign in Canada Service Connection'
+     scriptType: 'bash'
+     scriptLocation: 'inlineScript'
+     inlineScript: |
+        /usr/bin/az account show
+        /usr/bin/az account set --subscription '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
+        az network vnet subnet update --resource-group "$(rgName)" --vnet-name "$(virtualNetworkName)" --name "$(subnetName)" --service-endpoints "Microsoft.KeyVault"
+        subnetid=$(az network vnet subnet show --resource-group "$(rgName)" --vnet-name "$(virtualNetworkName)" --name "$(subnetName)" --query id --output tsv)
+        az keyvault network-rule add --resource-group "$(rgName)" --name "$(rgName)-kvrule" --subnet $subnetid
+    displayName: Update keyvault ACLs
+    
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
       deploymentScope: 'Resource Group'
@@ -132,7 +145,20 @@ jobs:
       overrideParameters: '-vmName $(vmName) -vmResouceGroupName "$(rgName)"'
       deploymentMode: 'Incremental'
     displayName: Keyvault AccessPolicy
-    
+  
+  - task: AzureCLI@2
+    inputs:
+     azureSubscription: 'Sign in Canada Service Connection'
+     scriptType: 'bash'
+     scriptLocation: 'inlineScript'
+     inlineScript: |
+        /usr/bin/az account show
+        /usr/bin/az account set --subscription '487c0957-86dc-470c-b6f5-5b7d64eb39a2'
+        az network vnet subnet update --resource-group "$(rgName)" --vnet-name "$(virtualNetworkName)" --name "$(subnetName)" --service-endpoints "Microsoft.KeyVault"
+        subnetid=$(az network vnet subnet show --resource-group "$(rgName)" --vnet-name "$(virtualNetworkName)" --name "$(subnetName)" --query id --output tsv)
+        az keyvault network-rule add --resource-group "$(rgName)" --name "$(rgName)-kvrule" --subnet $subnetid
+    displayName: Update keyvault ACLs
+
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
       deploymentScope: 'Resource Group'
