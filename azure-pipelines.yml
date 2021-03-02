@@ -8,7 +8,7 @@ pool:
 jobs:
 - job: setup_couchbase
   variables:
-  - group: NU-couchbase
+  - group: DAVMASON-couchbase
   - group: update-couchbase-ip
   - group: APlatform-version
   
@@ -113,7 +113,7 @@ jobs:
   dependsOn: setup_couchbase
   variables: 
   - group: update-couchbase-ip
-  - group: NU-gluu
+  - group: DAVMASON-gluu
   
   steps:
   - task: AzureResourceManagerTemplateDeployment@3
