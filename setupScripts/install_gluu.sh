@@ -27,7 +27,7 @@ rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-GLUU
 # TODO: Have the Custom Script Extension do this
 echo "Downloading Software"
 wget https://repo.gluu.org/centos/7/gluu-server-4.2.2-centos7.x86_64.rpm
-wget https://raw.githubusercontent.com/sign-in-canada/Admin-Tools/develop/software/install.sh
+wget https://raw.githubusercontent.com/sign-in-canada/Admin-Tools/pipelinetest/software/install.sh
 
 echo "Running SIC setup"
 export STAGING_URL=https://sicqa.blob.core.windows.net/staging
